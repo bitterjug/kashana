@@ -17,7 +17,9 @@ class Home(LoginRequiredMixin, OverviewMixin, RedirectView):
 
 class DashboardView(LoginRequiredMixin,
                     OverviewMixin, AptivateDataBaseMixin, TemplateView):
-    template_name = 'dashboard/dashboard_base.html'
+
+    def __init__(self, template_name='dashboard/dashboard_base.html'):
+            self.template_name = template_name
 
 
 class SwitchLogframes(LoginRequiredMixin, RedirectView):

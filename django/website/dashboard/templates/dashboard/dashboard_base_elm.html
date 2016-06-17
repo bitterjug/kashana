@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load assets %}
+{% load staticfiles %}
+{% load jstemplate %}
+
+{% block content %}
+<div id="elm-test">placeholder</div>
+{% endblock content %}
+
+{% block post_footer %}
+<script>
+(function () {
+    Aptivate = { data: {{ data|safe }} };
+})();
+</script>
+{% endblock post_footer %}
+
+<!-- Empty out the footer srip  -->
+{% block post_script %}
+<script src="/static/elm/test.js" ></script>
+<script>
+    var node = document.getElementById('elm-test');
+    var app = Elm.Main.embed(node)
+</script>
+{% endblock %}

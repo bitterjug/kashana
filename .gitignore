@@ -13,6 +13,7 @@ django/website/*.sqlite
 django/website/search_index
 django/website/static
 django/website/uploads
+elm/elm-stuff
 reports/*
 .DS_Store
 .pydevproject

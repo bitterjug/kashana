@@ -75,6 +75,7 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     ('js', join(PROJECT_PATH, '..', '..', 'javascript', 'src')),
     ('dist', join(PROJECT_PATH, '..', '..', 'javascript', 'dist')),
+    ('elm', join(PROJECT_PATH, '..', '..', 'elm' )),
     join(PROJECT_PATH, 'media'),
 )
 
