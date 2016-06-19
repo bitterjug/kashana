@@ -5,7 +5,7 @@
 {% load jstemplate %}
 
 {% block content %}
-<div id="elm-test">placeholder</div>
+<div id="elm-test"></div>
 {% endblock content %}
 
 {% block post_footer %}
@@ -18,9 +18,10 @@
 
 <!-- Empty out the footer srip  -->
 {% block post_script %}
-<script src="/static/elm/test.js" ></script>
+<script src="/static/elm/dashboard.js" ></script>
 <script>
     var node = document.getElementById('elm-test');
-    var app = Elm.Main.embed(node)
+    var app = Elm.Dashboard.embed(node)
+    app.ports.results.send(Aptivate.data.results)
 </script>
 {% endblock %}
