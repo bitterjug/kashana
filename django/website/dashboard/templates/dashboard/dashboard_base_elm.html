@@ -5,7 +5,7 @@
 {% load jstemplate %}
 
 {% block content %}
-<div id="elm-test"></div>
+<div id="current-page"></div>
 {% endblock content %}
 
 {% block post_footer %}
@@ -20,7 +20,7 @@
 {% block post_script %}
 <script src="/static/elm/dashboard.js" ></script>
 <script>
-  var node = document.getElementById('elm-test');
+  var node = document.getElementById('current-page');
   var app = Elm.Dashboard.embed(node, Aptivate.data.results )
 </script>
 {% endblock %}

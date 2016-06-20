@@ -1,6 +1,7 @@
 port module Dashboard exposing (..)
 
-import Html exposing (h1, div, text, Html)
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.App as App
 
 
@@ -56,19 +57,56 @@ subscriptions model =
     Sub.none
 
 
+renderResult : Result -> Html Msg
+renderResult result =
+    div [ class "overview-main" ]
+        [ div [ class "result-tree" ]
+            [ div [ class "result-overview level-1" ]
+                [ table [ class "result-overview-table" ]
+                    [ tbody []
+                        [ tr []
+                            [ td
+                                [ classList
+                                    [ ( "overview-minmax", True )
+                                    , ( "unselectable", True )
+                                    ]
+                                ]
+                                [ span [ class "toggle-triangle" ] [ text "▶" ]
+                                ]
+                            , td [ class "overview-title" ]
+                                [ div
+                                    [ classList
+                                        [ ( "ribbon", True )
+                                        , ( "ribbon-result", True )
+                                        ]
+                                    ]
+                                    [ h2
+                                        [ classList
+                                            [ ( "heading", True )
+                                            , ( "editable", True )
+                                            ]
+                                        ]
+                                        [ text result.name ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+
 renderResults : List Result -> Html Msg
 renderResults results =
     div []
-        (results
-            |> List.map (\r -> r.id |> toString |> text)
-        )
+        <| List.map renderResult results
 
 
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [ text "Dashboard" ]
-        , renderResults model.results
+        [ (renderResults model.results)
         ]
 
 
