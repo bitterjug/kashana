@@ -20,8 +20,7 @@
 {% block post_script %}
 <script src="/static/elm/dashboard.js" ></script>
 <script>
-    var node = document.getElementById('elm-test');
-    var app = Elm.Dashboard.embed(node)
-    app.ports.results.send(Aptivate.data.results)
+  var node = document.getElementById('elm-test');
+  var app = Elm.Dashboard.embed(node, Aptivate.data.results )
 </script>
 {% endblock %}

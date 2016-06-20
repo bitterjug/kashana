@@ -29,20 +29,19 @@ type alias ResultList =
 
 
 type alias Model =
-    { results : Maybe ResultList }
+    { results : ResultList }
 
 
 type Msg
     = NoOp
-    | InitResults (List Result)
 
 
 port results : (List Result -> msg) -> Sub msg
 
 
-init : ( Model, Cmd Msg )
-init =
-    Model Nothing ! []
+initWithFlags : List Result -> ( Model, Cmd Msg )
+initWithFlags results =
+    Model results ! []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -51,16 +50,10 @@ update msg model =
         NoOp ->
             model ! []
 
-        InitResults results' ->
-            { model | results = Just results' } ! []
-
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    if model.results == Nothing then
-        results InitResults
-    else
-        Sub.none
+    Sub.none
 
 
 renderResults : List Result -> Html Msg
@@ -75,15 +68,13 @@ view : Model -> Html Msg
 view model =
     div []
         [ h1 [] [ text "Dashboard" ]
-        , model.results
-            |> Maybe.map renderResults
-            |> Maybe.withDefault (text "Nothing here")
+        , renderResults model.results
         ]
 
 
 main =
-    App.program
-        { init = init
+    App.programWithFlags
+        { init = initWithFlags
         , view = view
         , update = update
         , subscriptions = subscriptions
