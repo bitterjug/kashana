@@ -3,33 +3,15 @@ port module Dashboard exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.App as App
-
-
-type alias Result =
-    { id : Int
-    , name : String
-    , description : String
-    , order :
-        Int
-        -- parent: null,
-    , level : Int
-    , contribution_weighting :
-        Int
-        -- "risk_rating": null,
-        -- "rating": null,
-    , log_frame :
-        Int
-        -- "indicators": [],
-        -- activities: List ActivityId
-        -- "assumptions": []
-    }
+import Models.Result as Result
 
 
 type alias ResultList =
-    List Result
+    List Result.Model
 
 
 type alias Model =
+    -- The dashboard model comprises a list of results
     { results : ResultList }
 
 
@@ -37,10 +19,10 @@ type Msg
     = NoOp
 
 
-port results : (List Result -> msg) -> Sub msg
+port results : (List Result.Model -> msg) -> Sub msg
 
 
-initWithFlags : List Result -> ( Model, Cmd Msg )
+initWithFlags : List Result.Model -> ( Model, Cmd Msg )
 initWithFlags results =
     Model results ! []
 
@@ -57,7 +39,7 @@ subscriptions model =
     Sub.none
 
 
-renderResult : Result -> Html Msg
+renderResult : Result.Model -> Html Msg
 renderResult result =
     div [ class "overview-main" ]
         [ div [ class "result-tree" ]
@@ -97,7 +79,7 @@ renderResult result =
         ]
 
 
-renderResults : List Result -> Html Msg
+renderResults : List Result.Model -> Html Msg
 renderResults results =
     div []
         <| List.map renderResult results
