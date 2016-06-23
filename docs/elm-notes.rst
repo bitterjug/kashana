@@ -43,3 +43,34 @@ What to use for the higher level models?
 I wonder if we need a module to define the types for Result, and separate 
 modules to define different views on results. E.g. the dashboard result view.
 
+States for fields and models
+----------------------------
+
+Js version has editing state.  And elm version has saving state: awaiting
+response from server. Js version also appears to have this state, because it
+has separate css. What's the intersection of these two states? Can you edit
+an element which is awaiting a server response, and what does that mean 
+for the pending request? 
+
+Can you cancel or ignore a previous update request when you make a new one?
+Perhaps not, since it's already sent on the wire. We can only respond to what
+the server sends us.
+
+And in a sense when we update a single field, we are really awaiting all the
+fields from the server, since any or all of them might have changed if someone
+else edited the same resource at the same time we did. Should we grey out all 
+fields on the Result while we await the servers response, in case any of them
+changed?
+
+I mean what happens to the state of a field that we're editing (in edit state) 
+when an updated Response comes in from the server with a different value for
+that field than the one we started editing? Which wins? 
+
+- Server wins, and the app discards our  edits to date 
+- We win and the app discards or ignores the new value from the server
+- Neither, and the app reports the situation as an error (new version of this
+  field is available...)
+
+
+
+
