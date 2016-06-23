@@ -40,3 +40,6 @@ What to use for the higher level models?
 - There should probably be a view for the "dashboard" page as a whole, with a
   result view in it.
 
+I wonder if we need a module to define the types for Result, and separate 
+modules to define different views on results. E.g. the dashboard result view.
+
