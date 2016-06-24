@@ -71,6 +71,19 @@ that field than the one we started editing? Which wins?
 - Neither, and the app reports the situation as an error (new version of this
   field is available...)
 
+Here's the problem broken down:
 
+- Edit a field and press Enter, the field changes to "saving" (shows crosshatch)
+- Before the server responds (slow server, simulate by Control-zedding the
+  server process) re-edit the field. Save new result. Still shows saving.
+- Server wakes up (fg server process).
+- First response from server, app updates the field to normal styling -- no 
+  crosshatching.
+Oops! We lost integrity of the updating status
+- Second server response arrives. Okay, we update the field contents but there
+  was no indicator that we were still awaiting this response.
+
+Do we need to send a token, or hash, with each edit to say what we're awaiting?
+Like a sliding window protocol, we're awaiting an Ack for edit 36, etc.?
 
 
