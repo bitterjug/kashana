@@ -67,7 +67,7 @@ view : Model -> Html Msg
 view model =
     let
         highlightStyle =
-            -- should probably set classes rather than syles
+            -- TODO: use classes not styles. And make the classes parameters
             style
                 <| if model.saving then
                     [ ( "background-color", "orange" ) ]
