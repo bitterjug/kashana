@@ -87,3 +87,13 @@ Do we need to send a token, or hash, with each edit to say what we're awaiting?
 Like a sliding window protocol, we're awaiting an Ack for edit 36, etc.?
 
 
+What is the model for Result
+-----------------------------
+
+In my toy model of Kashana the model for Result comprises only and all its
+component fields. In Elm I'm feeling like I want to keep a copy of the record
+that corresponds to the js object we get from the server, and keep it in sync
+with the contents of the fields. This kinda similar to how the input field
+stores the value and the input value as separate values. That might be 
+necessary, in fact, while we're waiting for server reply, but won't we end
+up with lots of duplicated state that way?
