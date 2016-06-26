@@ -9,6 +9,12 @@ import Time
 
 
 type alias Model =
+    { name : Field.Model
+    , description : Field.Model
+    }
+
+
+type alias ResultObject =
     { id : Int
     , name : String
     , description : String
@@ -89,7 +95,19 @@ update msg model =
                     ! []
 
 
-render : Model -> Html msg
+renderName : Field.Renderer
+renderName atts value =
+    let
+        classes =
+            classList
+                [ ( "heading", True )
+                , ( "editable", True )
+                ]
+    in
+        h2 (classes :: atts) [ text value ]
+
+
+render : Model -> Html Field.Msg
 render result =
     -- we don't have an Msg type in this module yet,
     -- so I'm using msg as a type variable to say
@@ -115,14 +133,7 @@ render result =
                                         , ( "ribbon-result", True )
                                         ]
                                     ]
-                                    [ h2
-                                        [ classList
-                                            [ ( "heading", True )
-                                            , ( "editable", True )
-                                            ]
-                                        ]
-                                        [ text result.name ]
-                                    ]
+                                    [ Field.view renderName result.name ]
                                 ]
                             ]
                         ]

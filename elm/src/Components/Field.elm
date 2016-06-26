@@ -1,4 +1,4 @@
-module Components.Field exposing (Model, Msg, initModel, view, update, saved)
+module Components.Field exposing (Model, Msg, Renderer, initModel, view, update, saved)
 
 import Dict
 import Html exposing (..)
@@ -63,9 +63,14 @@ onKeyDown tagger =
     on "keydown" <| Json.map tagger keyCode
 
 
-view : Model -> Html Msg
-view model =
+type alias Renderer =
+    List (Attribute Msg) -> String -> Html Msg
+
+
+view : Renderer -> Model -> Html Msg
+view displayView model =
     let
+        highlightStyle : Attribute Msg
         highlightStyle =
             -- TODO: use classes not styles. And make the classes parameters
             style
@@ -76,18 +81,15 @@ view model =
                    else
                     []
 
+        display : Html Msg
         display =
-            h2
-                [ highlightStyle
-                , onClick Focus
-                ]
-                [ text
-                    <| if model.value == "" then
-                        model.name
-                       else
-                        model.value
-                ]
+            displayView [ highlightStyle, onClick Focus ]
+                <| if model.value == "" then
+                    model.name
+                   else
+                    model.value
 
+        edit : Html Msg
         edit =
             input
                 [ type' "text"
