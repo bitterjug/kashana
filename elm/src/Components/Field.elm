@@ -29,10 +29,10 @@ type alias Model =
     }
 
 
-initModel : String -> Model
-initModel name =
+initModel : String -> String -> Model
+initModel name value =
     { name = name
-    , value = ""
+    , value = value
     , input = ""
     , saving = False
     , editing = False

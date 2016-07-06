@@ -6,13 +6,9 @@ import Html.App as App
 import Models.Result as Result
 
 
-type alias ResultList =
-    List Result.Model
-
-
 type alias Model =
     -- The dashboard model comprises a list of results
-    { results : ResultList }
+    { results : List Result.Model }
 
 
 type Msg
@@ -22,9 +18,9 @@ type Msg
 port results : (List Result.Model -> msg) -> Sub msg
 
 
-initWithFlags : List Result.Model -> ( Model, Cmd Msg )
+initWithFlags : List Result.ResultObject -> ( Model, Cmd Msg )
 initWithFlags results =
-    Model results ! []
+    { results = List.map Result.initModel results } ! []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -48,8 +44,7 @@ renderResults results =
 view : Model -> Html Msg
 view model =
     div []
-        [ (renderResults model.results)
-        ]
+        [ (renderResults model.results) ]
 
 
 main =

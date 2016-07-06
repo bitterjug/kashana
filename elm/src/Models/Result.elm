@@ -34,6 +34,13 @@ type alias ResultObject =
     }
 
 
+initModel : ResultObject -> Model
+initModel result =
+    { name = Field.initModel "Name" result.name
+    , description = Field.initModel "Description" result.description
+    }
+
+
 type Msg
     = UpdateName Field.Msg
     | UpdateDescription Field.Msg
