@@ -97,3 +97,19 @@ with the contents of the fields. This kinda similar to how the input field
 stores the value and the input value as separate values. That might be 
 necessary, in fact, while we're waiting for server reply, but won't we end
 up with lots of duplicated state that way?
+
+2016-07-10
+---------
+
+I just wired up the Field model into the kashana app.
+
+- [ ] The field's initial value doesn't seem to be getting initialized properly
+  from the model.  Although it shows the word Goal when you load the page, that
+  doesn't seem to be the default value to return to
+
+- [ ]  Maybe the problem is with the escape key not doing reset properly. Need
+  to look into that.
+
+- [ ] The top level wiring applies all changes to results to all elements of
+  the results list. That needs to be fixed to treat individual elements
+  separately, and have a placeholder for new entries.
