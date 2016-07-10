@@ -3,6 +3,7 @@ module Models.Result exposing (..)
 import Components.Field as Field
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.App as App
 import Process
 import Task
 import Time
@@ -114,11 +115,8 @@ renderName atts value =
         h2 (classes :: atts) [ text value ]
 
 
-render : Model -> Html Field.Msg
+render : Model -> Html Msg
 render result =
-    -- we don't have an Msg type in this module yet,
-    -- so I'm using msg as a type variable to say
-    -- that rener returns Html of 'some msg type'
     div [ class "overview-main" ]
         [ div [ class "result-tree" ]
             [ div [ class "result-overview level-1" ]
@@ -140,7 +138,7 @@ render result =
                                         , ( "ribbon-result", True )
                                         ]
                                     ]
-                                    [ Field.view renderName result.name ]
+                                    [ App.map UpdateName <| Field.view renderName result.name ]
                                 ]
                             ]
                         ]

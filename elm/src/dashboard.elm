@@ -13,6 +13,7 @@ type alias Model =
 
 type Msg
     = NoOp
+    | UpdateResult Result.Msg
 
 
 port results : (List Result.Model -> msg) -> Sub msg
@@ -29,6 +30,15 @@ update msg model =
         NoOp ->
             model ! []
 
+        UpdateResult rmsg ->
+            let
+                ( results, cmds ) =
+                    List.unzip (List.map (Result.update rmsg) model.results)
+            in
+                ( { model | results = results }
+                , Cmd.map (UpdateResult) (Cmd.batch cmds)
+                )
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -37,8 +47,13 @@ subscriptions model =
 
 renderResults : List Result.Model -> Html Msg
 renderResults results =
-    div []
-        <| List.map Result.render results
+    let
+        renderResult : Result.Model -> Html Msg
+        renderResult =
+            App.map UpdateResult << Result.render
+    in
+        div []
+            <| List.map renderResult results
 
 
 view : Model -> Html Msg
