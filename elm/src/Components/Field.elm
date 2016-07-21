@@ -33,7 +33,7 @@ initModel : String -> String -> Model
 initModel name value =
     { name = name
     , value = value
-    , input = ""
+    , input = value
     , saving = False
     , editing = False
     }
