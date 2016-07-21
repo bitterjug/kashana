@@ -16,9 +16,6 @@ type Msg
     | UpdateResult Result.Msg
 
 
-port results : (List Result.Model -> msg) -> Sub msg
-
-
 initWithFlags : List Result.ResultObject -> ( Model, Cmd Msg )
 initWithFlags results =
     { results = List.map Result.initModel results } ! []
