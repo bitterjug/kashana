@@ -113,3 +113,11 @@ I just wired up the Field model into the kashana app.
 - [ ] The top level wiring applies all changes to results to all elements of
   the results list. That needs to be fixed to treat individual elements
   separately, and have a placeholder for new entries.
+
+
+Build
+-----
+
+elm-make src/dashboard.elm  --output build/dashboard.js
+
+http://127.0.0.1:8000/dashboard-elm/test/
