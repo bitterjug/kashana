@@ -15,6 +15,7 @@ django/website/static
 django/website/uploads
 elm/elm-stuff
 elm/build
+elm/elm.js
 reports/*
 .DS_Store
 .pydevproject
