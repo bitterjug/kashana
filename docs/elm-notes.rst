@@ -115,14 +115,22 @@ I just wired up the Field model into the kashana app.
     input. Now we don't know if it was defocused by an escape or because we
     clicked outside.
 
-  - IS this because of the html we're rendering the thing with? Where does the escape go?
+  - IS this because of the html we're rendering the thing with? Where does the
+    escape go?
 
-  - IT was just bloody Vimium stealing the escape key. Create exclusion rule for it.
+  - IT was just bloody Vimium stealing the escape key. Create exclusion rule
+    for it.
 
-- There is a state machine problem with escape to reset a field. If you edit
-  a field and press escape it puts back the initial value, and renders as
-  H2 again, but the colour stays orange as if pending results of the save
-  which we didn't actually do. So something's not being reset properly.
+- There is a state machine problem with escape to reset a field. If you edit a
+  field and press escape it puts back the initial value, and renders as H2
+  again, but the colour stays orange as if pending results of the save which we
+  didn't actually do. So something's not being reset properly. I suspect the 
+  problem is that: on Blur does latch which sets saving to true whether or
+  not the value has changed. But the effect to do a save, which does Saved
+  only gets executed if the value has changed. In fact at the moment the
+  Field component has two ways to trigger Latch (onBlur and onKeydown 13)
+  but no way to trigger Saved and set saving = False. To do that the client has
+  to call its Field.saved function.
 
 - [ ] The top level wiring applies all changes to results to all elements of
   the results list. That needs to be fixed to treat individual elements
