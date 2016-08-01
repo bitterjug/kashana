@@ -103,7 +103,7 @@ up with lots of duplicated state that way?
 
 I just wired up the Field model into the kashana app.
 
-- [ ] The field's initial value doesn't seem to be getting initialized properly
+- [x] The field's initial value doesn't seem to be getting initialized properly
   from the model.  Although it shows the word Goal when you load the page, that
   doesn't seem to be the default value to return to
 
@@ -118,6 +118,11 @@ I just wired up the Field model into the kashana app.
   - IS this because of the html we're rendering the thing with? Where does the escape go?
 
   - IT was just bloody Vimium stealing the escape key. Create exclusion rule for it.
+
+- There is a state machine problem with escape to reset a field. If you edit
+  a field and press escape it puts back the initial value, and renders as
+  H2 again, but the colour stays orange as if pending results of the save
+  which we didn't actually do. So something's not being reset properly.
 
 - [ ] The top level wiring applies all changes to results to all elements of
   the results list. That needs to be fixed to treat individual elements
