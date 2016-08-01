@@ -54,14 +54,8 @@ update msg model =
     let
         saveResult : Cmd Msg
         saveResult =
-            -- simulate http request with sleep
-            -- needs the whole model which I'm just logging for the moment
-            let
-                _ =
-                    Debug.log "saving" model
-            in
-                Process.sleep Time.second
-                    |> Task.perform (always NoOp) (always Saved)
+            Process.sleep Time.second
+                |> Task.perform (always NoOp) (always Saved)
 
         updateField : Field.Msg -> Field.Model -> ( Field.Model, Cmd Msg )
         updateField msg field =
@@ -96,11 +90,17 @@ update msg model =
                     ( { model | description = description' }, cmd )
 
             Saved ->
-                { model
-                    | name = Field.saved model.name
-                    , description = Field.saved model.description
-                }
-                    ! []
+                -- simulate http request with sleep
+                -- needs the whole model which I'm just logging for the moment
+                let
+                    model' =
+                        Debug.log "saved" model
+                in
+                    { model'
+                        | name = Field.saved model.name
+                        , description = Field.saved model.description
+                    }
+                        ! []
 
 
 renderName : Field.Renderer

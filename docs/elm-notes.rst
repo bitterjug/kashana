@@ -107,8 +107,17 @@ I just wired up the Field model into the kashana app.
   from the model.  Although it shows the word Goal when you load the page, that
   doesn't seem to be the default value to return to
 
-- [ ]  Maybe the problem is with the escape key not doing reset properly. Need
+- [x]  Maybe the problem is with the escape key not doing reset properly. Need
   to look into that.
+
+  - Looks like Escape no longer gets registered as a keystroke, though it did
+    in the original input component.  But it does take the focus out of the
+    input. Now we don't know if it was defocused by an escape or because we
+    clicked outside.
+
+  - IS this because of the html we're rendering the thing with? Where does the escape go?
+
+  - IT was just bloody Vimium stealing the escape key. Create exclusion rule for it.
 
 - [ ] The top level wiring applies all changes to results to all elements of
   the results list. That needs to be fixed to treat individual elements
