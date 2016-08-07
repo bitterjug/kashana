@@ -147,6 +147,9 @@ I just wired up the Field model into the kashana app.
   the results list. That needs to be fixed to treat individual elements
   separately, and have a placeholder for new entries.
 
+- [ ] Looks like it might be possible (not sure if desirable) to separate the
+  logic for saving the data in a field from the rest of field's behaviour. 
+  might make the views messy if the saved field is in a wrapper record.
 
 Build
 -----
