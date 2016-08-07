@@ -1,4 +1,4 @@
-module Components.Field exposing (Model, Msg, Renderer, initModel, view, update, saved)
+module Components.Field exposing (Model, Msg, Renderer, initModel, view, update, update', saved)
 
 import Dict
 import Html exposing (..)
@@ -159,6 +159,21 @@ update msg model =
 
         Focus ->
             { model | editing = True }
+
+
+update' : Msg -> Model -> ( Model, Maybe Msg )
+update' msg model =
+    let
+        model' =
+            update msg model
+
+        msg_ =
+            if model.value /= model'.value then
+                Just Saved
+            else
+                Nothing
+    in
+        ( model', msg_ )
 
 
 type alias SavesData =

@@ -45,30 +45,27 @@ initModel result =
 type Msg
     = UpdateName Field.Msg
     | UpdateDescription Field.Msg
-    | Saved
+    | Saved Field.Msg
     | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
-        saveResult : Cmd Msg
-        saveResult =
+        saveResult : Field.Msg -> Cmd Msg
+        saveResult msg' =
             Process.sleep Time.second
-                |> Task.perform (always NoOp) (always Saved)
+                |> Task.perform (always NoOp) (always (Saved msg'))
 
         updateField : Field.Msg -> Field.Model -> ( Field.Model, Cmd Msg )
         updateField msg field =
             -- Update a field and, if its stored value changed, save the Result
             let
-                field' =
-                    Field.update msg field
+                ( field', msg_ ) =
+                    Field.update' msg field
             in
                 ( field'
-                , if field'.value /= field.value then
-                    saveResult
-                  else
-                    Cmd.none
+                , msg_ |> Maybe.map saveResult >> Maybe.withDefault Cmd.none
                 )
     in
         case msg of
@@ -89,7 +86,7 @@ update msg model =
                 in
                     ( { model | description = description' }, cmd )
 
-            Saved ->
+            Saved msg' ->
                 -- simulate http request with sleep
                 -- needs the whole model which I'm just logging for the moment
                 let
@@ -97,8 +94,8 @@ update msg model =
                         Debug.log "saved" model
                 in
                     { model'
-                        | name = Field.saved model.name
-                        , description = Field.saved model.description
+                        | name = Field.update msg' model.name
+                        , description = Field.update msg' model.description
                     }
                         ! []
 
