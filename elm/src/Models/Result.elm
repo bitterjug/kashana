@@ -89,6 +89,8 @@ update msg model =
             Saved msg' ->
                 -- simulate http request with sleep
                 -- needs the whole model which I'm just logging for the moment
+                -- TODO: we're calling saved on all fields. MAybe we can get
+                -- away with doing that only for the field that changed?
                 let
                     model' =
                         Debug.log "saved" model

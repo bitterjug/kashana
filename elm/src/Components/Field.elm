@@ -1,4 +1,4 @@
-module Components.Field exposing (Model, Msg, Renderer, initModel, view, update, update', saved)
+module Components.Field exposing (Model, Msg, Renderer, initModel, view, update, update')
 
 import Dict
 import Html exposing (..)
@@ -127,11 +127,6 @@ type Msg
     | Focus
 
 
-saved : Model -> Model
-saved model =
-    update Saved model
-
-
 update : Msg -> Model -> Model
 update msg model =
     case msg of
@@ -144,7 +139,6 @@ update msg model =
         Latch ->
             { model
                 | value = model.input
-                , saving = True
                 , editing = False
             }
 
@@ -154,11 +148,11 @@ update msg model =
                 , editing = False
             }
 
-        Saved ->
-            { model | saving = False }
-
         Focus ->
             { model | editing = True }
+
+        Saved ->
+            { model | saving = False }
 
 
 update' : Msg -> Model -> ( Model, Maybe Msg )
@@ -166,15 +160,8 @@ update' msg model =
     let
         model' =
             update msg model
-
-        msg_ =
-            if model.value /= model'.value then
-                Just Saved
-            else
-                Nothing
     in
-        ( model', msg_ )
-
-
-type alias SavesData =
-    Bool
+        if model.value /= model'.value then
+            ( { model' | saving = True }, Just Saved )
+        else
+            ( model', Nothing )
