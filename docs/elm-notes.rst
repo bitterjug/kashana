@@ -143,9 +143,9 @@ I just wired up the Field model into the kashana app.
   necessary ?? But I think we ought really to only be doing the Field.Msg.Saved
   update on the field from which the save Cmd originated.
 
-- [ ] The top level wiring applies all changes to results to all elements of
-  the results list. That needs to be fixed to treat individual elements
-  separately, and have a placeholder for new entries.
+- [ ] The top level wiring applies all changes to Results to all elements of
+  the results list. That needs to be fixed to treat individual Results
+  separately, and have a placeholder for new Results.
 
 - [ ] Looks like it might be possible (not sure if desirable) to separate the
   logic for saving the data in a field from the rest of field's behaviour. 

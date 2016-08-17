@@ -16,6 +16,7 @@ type alias Model =
 
 
 type alias ResultObject =
+    -- Type of the Aptivate.results objects used to initialize the app
     { id : Int
     , name : String
     , description : String
@@ -37,6 +38,7 @@ type alias ResultObject =
 
 initModel : ResultObject -> Model
 initModel result =
+    -- Create a Model instance from a ResultObject
     { name = Field.initModel "Name" result.name
     , description = Field.initModel "Description" result.description
     }

@@ -6,19 +6,28 @@ import Html.App as App
 import Models.Result as Result
 
 
+type alias ID =
+    Int
+
+
 type alias Model =
     -- The dashboard model comprises a list of results
-    { results : List Result.Model }
+    { results : List ( ID, Result.Model )
+    , nextId : ID
+    }
 
 
 type Msg
     = NoOp
-    | UpdateResult Result.Msg
+    | UpdateResult ID Result.Msg
 
 
 initWithFlags : List Result.ResultObject -> ( Model, Cmd Msg )
 initWithFlags results =
-    { results = List.map Result.initModel results } ! []
+    { results = List.indexedMap (,) <| List.map Result.initModel results
+    , nextId = List.length results
+    }
+        ! []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -27,13 +36,23 @@ update msg model =
         NoOp ->
             model ! []
 
-        UpdateResult rmsg ->
+        UpdateResult id rmsg ->
             let
-                ( results, cmds ) =
-                    List.unzip (List.map (Result.update rmsg) model.results)
+                updateResult ( id', result ) =
+                    if id' == id then
+                        let
+                            ( result', cmd ) =
+                                Result.update rmsg result
+                        in
+                            ( ( id', result' ), cmd )
+                    else
+                        ( ( id', result ), Cmd.none )
+
+                ( results', cmds ) =
+                    List.unzip (List.map updateResult model.results)
             in
-                ( { model | results = results }
-                , Cmd.map (UpdateResult) (Cmd.batch cmds)
+                ( { model | results = results' }
+                , Cmd.map (UpdateResult id) (Cmd.batch cmds)
                 )
 
 
@@ -42,15 +61,16 @@ subscriptions model =
     Sub.none
 
 
-renderResults : List Result.Model -> Html Msg
+renderResults : List ( ID, Result.Model ) -> Html Msg
 renderResults results =
     let
-        renderResult : Result.Model -> Html Msg
-        renderResult =
-            App.map UpdateResult << Result.render
+        renderResult : ( ID, Result.Model ) -> Html Msg
+        renderResult ( n, r ) =
+            Result.render r
+                |> App.map (UpdateResult n)
     in
-        div []
-            <| List.map renderResult results
+        div [] <|
+            List.map (renderResult) results
 
 
 view : Model -> Html Msg
