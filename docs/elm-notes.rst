@@ -138,14 +138,17 @@ I just wired up the Field model into the kashana app.
   no longer needs to know the details of Fiels's Msg type. Or of the fields
   inside its model record. Win win!
 
+- [x] The top level wiring applies all changes to Results to all elements of
+  the results list. That needs to be fixed to treat individual Results
+  separately, 
+
 - [ ] At present I call the Saved updater on all fields of a Result when the
   (Fake) server confirms it has saved the value successfully. This _might_ be
   necessary ?? But I think we ought really to only be doing the Field.Msg.Saved
   update on the field from which the save Cmd originated.
 
-- [ ] The top level wiring applies all changes to Results to all elements of
-  the results list. That needs to be fixed to treat individual Results
-  separately, and have a placeholder for new Results.
+  
+- [ ] have a placeholder for new Results.
 
 - [ ] Looks like it might be possible (not sure if desirable) to separate the
   logic for saving the data in a field from the rest of field's behaviour. 
