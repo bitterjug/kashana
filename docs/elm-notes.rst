@@ -147,6 +147,7 @@ I just wired up the Field model into the kashana app.
   necessary ?? But I think we ought really to only be doing the Field.Msg.Saved
   update on the field from which the save Cmd originated.
 
+- [ ] Make a real POST request to the server when we update a field.
   
 - [ ] have a placeholder for new Results.
 
