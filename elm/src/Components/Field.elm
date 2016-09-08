@@ -73,20 +73,20 @@ view displayView model =
         highlightStyle : Attribute Msg
         highlightStyle =
             -- TODO: use classes not styles. And make the classes parameters
-            style
-                <| if model.saving then
+            style <|
+                if model.saving then
                     [ ( "background-color", "orange" ) ]
-                   else if model.input /= model.value then
+                else if model.input /= model.value then
                     [ ( "background-color", "yellow" ) ]
-                   else
+                else
                     []
 
         display : Html Msg
         display =
-            displayView [ highlightStyle, onClick Focus ]
-                <| if model.value == "" then
+            displayView [ highlightStyle, onClick Focus ] <|
+                if model.value == "" then
                     model.name
-                   else
+                else
                     model.value
 
         edit : Html Msg
@@ -100,8 +100,8 @@ view displayView model =
                 , name model.name
                 , onInput UpdateInput
                 , onBlur Latch
-                , onKeyDown
-                    <| keyMsg
+                , onKeyDown <|
+                    keyMsg
                         [ ( enter, Latch )
                         , ( escape, Reset )
                         ]
@@ -157,6 +157,10 @@ update msg model =
 
 update' : Msg -> Model -> ( Model, Maybe Msg )
 update' msg model =
+    -- Do a normal update but also check if the stored field value has changed.
+    -- If it has, return Just Saved as the second element -- the Msg to send
+    -- us back when the value change has been processed (e.g. saved to a server)
+    -- Otherwise return Nothing -- no message.
     let
         model' =
             update msg model

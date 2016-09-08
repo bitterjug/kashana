@@ -124,7 +124,7 @@ I just wired up the Field model into the kashana app.
 - [x] There is a state machine problem with escape to reset a field. If you
   edit a field and press escape it puts back the initial value, and renders as
   H2 again, but the colour stays orange as if pending results of the save which
-  we didn't actually do. So something's not being reset properly. I suspect the
+  we didn't actually do. So something is not being reset properly. I suspect the
   problem is that: on Blur does latch which sets saving to true whether or not
   the value has changed. But the effect to do a save, which does Saved only
   gets executed if the value has changed. In fact at the moment the Field
@@ -135,7 +135,7 @@ I just wired up the Field model into the kashana app.
   Fixed by moving the logic to test if a field value has changed back inside
   the Field module, where we now only set `saving=True`	if the value changed.
   This has several nice-feeling side-effects on the coupling as the parent
-  no longer needs to know the details of Fiels's Msg type. Or of the fields
+  no longer needs to know the details of Field's Msg type. Or of the fields
   inside its model record. Win win!
 
 - [x] The top level wiring applies all changes to Results to all elements of

@@ -61,7 +61,11 @@ update msg model =
 
         updateField : Field.Msg -> Field.Model -> ( Field.Model, Cmd Msg )
         updateField msg field =
-            -- Update a field and, if its stored value changed, save the Result
+            -- Update a field. Using update', if the stored value changed,
+            -- we get back a Just msg (as msg_) to send the field when we've
+            -- processed the change (i.e. saved it to the server);
+            -- otherwise Nothing.  We turn msg_ into the Cmd side effect:
+            -- Cmd.none for Nothing, saveReslt msg for the other case.
             let
                 ( field', msg_ ) =
                     Field.update' msg field
