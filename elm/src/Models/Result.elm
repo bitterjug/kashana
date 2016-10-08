@@ -120,6 +120,11 @@ renderName atts value =
         h2 (classes :: atts) [ text value ]
 
 
+renderDescription : Field.Renderer
+renderDescription atts value =
+    div [ class "editable" ] [ text value ]
+
+
 render : Model -> Html Msg
 render result =
     div [ class "overview-main" ]
@@ -143,8 +148,22 @@ render result =
                                         , ( "ribbon-result", True )
                                         ]
                                     ]
-                                    [ App.map UpdateName <| Field.view renderName result.name ]
+                                    [ App.map UpdateName <|
+                                        Field.view renderName result.name
+                                    ]
                                 ]
+                            , td [ class "overview-manage" ]
+                                [ a [ href ".", class "edit-result" ]
+                                    [ text "Edit" ]
+                                , a [ href ".", class "monitor-result" ]
+                                    [ text "Monitor" ]
+                                ]
+                            , td [ class "overview-description" ]
+                                [ App.map UpdateDescription <|
+                                    Field.view renderDescription result.description
+                                ]
+                            , td [ class "overview-rating" ]
+                                []
                             ]
                         ]
                     ]
