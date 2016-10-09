@@ -122,7 +122,7 @@ renderName atts value =
 
 renderDescription : Field.Renderer
 renderDescription atts value =
-    div [ class "editable" ] [ text value ]
+    div ((class "editable") :: atts) [ text value ]
 
 
 render : Model -> Html Msg
