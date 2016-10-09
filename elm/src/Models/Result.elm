@@ -163,7 +163,16 @@ render result =
                                     Field.view renderDescription result.description
                                 ]
                             , td [ class "overview-rating" ]
-                                []
+                                [ div [ class "result-rating" ]
+                                    [ div
+                                        [ classList
+                                            [ ( "display-rating-value", True )
+                                            , ( "notrated", True )
+                                            ]
+                                        ]
+                                        []
+                                    ]
+                                ]
                             ]
                         ]
                     ]
