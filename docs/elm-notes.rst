@@ -158,6 +158,8 @@ TODO:
   logic for saving the data in a field from the rest of field's behaviour. 
   might make the views messy if the saved field is in a wrapper record.
 
+- There's supposed to be some HTML filtering
+
 Build
 -----
 
