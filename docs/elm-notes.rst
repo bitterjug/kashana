@@ -140,6 +140,11 @@ TODO:
   the results list. That needs to be fixed to treat individual Results
   separately, 
 
+- [ ] The Success class on fields should stay for 2 seconds and then fade.
+  This means when we get the success confirmation we should set feedback to
+  Success but also ask for a timer Cmd to call us back so we can remove it.
+  That's going to work much like the current timer to fake the http request.
+
 - [ ] At present I call the Saved updater on all fields of a Result when the
   (Fake) server confirms it has saved the value successfully. This _might_ be
   necessary ?? But I think we ought really to only be doing the Field.Msg.Saved

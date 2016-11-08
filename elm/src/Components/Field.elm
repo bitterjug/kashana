@@ -10,6 +10,13 @@ import Json.Decode as Json
 -- Model
 
 
+type FeedbackState
+    = InProgress
+    | Success
+    | Error
+    | Normal
+
+
 type alias Model =
     { name :
         String
@@ -20,9 +27,8 @@ type alias Model =
     , input :
         String
         -- new value being entered
-    , saving :
-        Bool
-        -- awaiting server response
+    , feedback :
+        FeedbackState
     , editing :
         Bool
         -- focussed for editing
@@ -34,7 +40,7 @@ initModel name value =
     { name = name
     , value = value
     , input = value
-    , saving = False
+    , feedback = Normal
     , editing = False
     }
 
@@ -72,14 +78,11 @@ view displayView model =
     let
         highlightStyle : Attribute Msg
         highlightStyle =
-            -- TODO: use classes not styles. And make the classes parameters
-            style <|
-                if model.saving then
-                    [ ( "background-color", "orange" ) ]
-                else if model.input /= model.value then
-                    [ ( "background-color", "yellow" ) ]
-                else
-                    []
+            classList
+                [ ( "in-progress", model.feedback == InProgress )
+                , ( "success", model.feedback == Error )
+                , ( "error", model.feedback == Success )
+                ]
 
         display : Html Msg
         display =
@@ -152,7 +155,10 @@ update msg model =
             { model | editing = True }
 
         Saved ->
-            { model | saving = False }
+            -- Now we need to return a Cmd from this update function so that
+            -- we can set the timer to remove the success class from this field.
+            -- That's going to impact the design of update' below.
+            { model | feedback = Success }
 
 
 update' : Msg -> Model -> ( Model, Maybe Msg )
@@ -166,6 +172,6 @@ update' msg model =
             update msg model
     in
         if model.value /= model'.value then
-            ( { model' | saving = True }, Just Saved )
+            ( { model' | feedback = InProgress }, Just Saved )
         else
             ( model', Nothing )
