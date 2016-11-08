@@ -5,6 +5,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onInput, keyCode, onClick, onBlur)
 import Json.Decode as Json
+import Process
+import Task
+import Time
 
 
 -- Model
@@ -80,8 +83,8 @@ view displayView model =
         highlightStyle =
             classList
                 [ ( "in-progress", model.feedback == InProgress )
-                , ( "success", model.feedback == Error )
-                , ( "error", model.feedback == Success )
+                , ( "error", model.feedback == Error )
+                , ( "success", model.feedback == Success )
                 ]
 
         display : Html Msg
@@ -123,42 +126,67 @@ view displayView model =
 
 type Msg
     = NoOp
+      -- Someone's typing
     | UpdateInput String
+      -- Save the edited value soewhere
     | Latch
+      -- We lost focus without saving
     | Reset
+      -- Inform us that the value has been savd somewhere
     | Saved
+      -- We receive the focus to edit
     | Focus
+      -- Clear the success status
+    | Clear
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
-            model
+            model ! []
 
         UpdateInput s ->
-            { model | input = s }
+            { model | input = s } ! []
 
         Latch ->
             { model
                 | value = model.input
                 , editing = False
             }
+                ! []
 
         Reset ->
             { model
                 | input = model.value
                 , editing = False
             }
+                ! []
 
         Focus ->
-            { model | editing = True }
+            { model | editing = True } ! []
 
         Saved ->
             -- Now we need to return a Cmd from this update function so that
             -- we can set the timer to remove the success class from this field.
             -- That's going to impact the design of update' below.
-            { model | feedback = Success }
+            let
+                clearSucessFeedback =
+                    Process.sleep (2 * Time.second)
+                        |> Task.perform (always NoOp) (always Clear)
+
+                feedback =
+                    case model.feedback of
+                        InProgress ->
+                            Success
+
+                        _ ->
+                            model.feedback
+            in
+                { model | feedback = feedback } ! [ clearSucessFeedback ]
+
+        Clear ->
+            { model | feedback = Normal } ! []
 
 
 update' : Msg -> Model -> ( Model, Maybe Msg )
@@ -168,10 +196,10 @@ update' msg model =
     -- us back when the value change has been processed (e.g. saved to a server)
     -- Otherwise return Nothing -- no message.
     let
-        model' =
+        ( model_, cmd ) =
             update msg model
     in
-        if model.value /= model'.value then
-            ( { model' | feedback = InProgress }, Just Saved )
+        if model.value /= model_.value then
+            ( { model_ | feedback = InProgress }, Just Saved )
         else
-            ( model', Nothing )
+            ( model_, Nothing )

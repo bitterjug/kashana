@@ -4,7 +4,6 @@ import Components.Field as Field
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.App as App
-import Http
 import Process
 import Task
 import Time
@@ -131,15 +130,25 @@ update msg model =
                 -- needs the whole model which I'm just logging for the moment
                 -- TODO: we're calling saved on all fields. MAybe we can get
                 -- away with doing that only for the field that changed?
+                -- TODO: We shouldn't really update all these fields, only the
+                -- ones we know to have changed. Now, how do w do that?
                 let
-                    model' =
+                    _ =
                         Debug.log "saved" model
+
+                    ( name_, nameCmd ) =
+                        Field.update msg' model.name
+
+                    ( description_, descCmd ) =
+                        Field.update msg' model.description
                 in
-                    { model'
-                        | name = Field.update msg' model.name
-                        , description = Field.update msg' model.description
+                    { model
+                        | name = name_
+                        , description = description_
                     }
-                        ! []
+                        ! [ Cmd.map UpdateName nameCmd
+                          , Cmd.map UpdateDescription descCmd
+                          ]
 
 
 renderName : Field.Renderer
