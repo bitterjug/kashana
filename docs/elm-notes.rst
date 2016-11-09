@@ -151,6 +151,12 @@ TODO:
   update on the field from which the save Cmd originated.
 
 - [ ] Make a real POST request to the server when we update a field.
+
+  What would one of these look like?
+
+  - We need to trigger an http request as a Cmd
+  - The results are going to be JSON that we'll have to parse
+    
   
 - [ ] have a placeholder for new Results.
 
