@@ -22,12 +22,24 @@ type Msg
     | UpdateResult ID Result.Msg
 
 
-initWithFlags : List Result.ResultObject -> ( Model, Cmd Msg )
-initWithFlags results =
-    { results = List.indexedMap (,) <| List.map Result.initModel results
-    , nextId = List.length results
+type alias AptivateData =
+    { results : List Result.ResultObject
+    , logframe : { id : Int, name : String }
     }
-        ! []
+
+
+initWithFlags : AptivateData -> ( Model, Cmd Msg )
+initWithFlags data =
+    let
+        initResultModel =
+            Result.initModel data.logframe.id
+    in
+        { results =
+            List.indexedMap (,) <|
+                List.map initResultModel data.results
+        , nextId = List.length data.results
+        }
+            ! []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

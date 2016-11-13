@@ -10,7 +10,8 @@ import Time
 
 
 type alias Model =
-    { name : Field.Model
+    { logframeId : Int
+    , name : Field.Model
     , description : Field.Model
     }
 
@@ -36,10 +37,11 @@ type alias ResultObject =
     }
 
 
-initModel : ResultObject -> Model
-initModel result =
+initModel : Int -> ResultObject -> Model
+initModel lfId result =
     -- Create a Model instance from a ResultObject
-    { name = Field.initModel "Name" result.name
+    { logframeId = lfId
+    , name = Field.initModel "Name" result.name
     , description = Field.initModel "Description" result.description
     }
 
@@ -73,9 +75,7 @@ type Msg
    So we need:
     - The url for the post to results:
 
-       '/api/logframes/' ++ <logframe-id>  ++ '/results'
-
-       What's the logframe ID? Is it in the base URL?
+       '/api/logframes/' ++ (Basics.toString model.logframeId)   ++ '/results'
 
     - A decoder for whatever comes back from the API
     - New case in Cmd for the Error
