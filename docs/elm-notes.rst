@@ -141,9 +141,14 @@ TODO:
   separately, 
 
 - [ ] The Success class on fields should stay for 2 seconds and then fade.
-  This means when we get the success confirmation we should set feedback to
-  Success but also ask for a timer Cmd to call us back so we can remove it.
-  That's going to work much like the current timer to fake the http request.
+  Got the timer to remove the tag but it looks a bit sudden, maybe the 
+  CSS transitions don't work when you splice in new bits of the DOM like
+  Elm's shadow DOM does.
+
+- [ ] Adding the class attributes to do the formatting above broke he default
+  classes because now there are 2 sets of `Attribute Msg` being combined
+  naively with concatenation, but each contain `className` specifiers that
+  aren't being combined. Question with Elm mail list.
 
 - [ ] At present I call the Saved updater on all fields of a Result when the
   (Fake) server confirms it has saved the value successfully. This _might_ be
