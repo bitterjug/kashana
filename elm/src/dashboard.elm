@@ -30,16 +30,12 @@ type alias AptivateData =
 
 initWithFlags : AptivateData -> ( Model, Cmd Msg )
 initWithFlags data =
-    let
-        initResultModel =
-            Result.initModel data.logframe.id
-    in
-        { results =
-            List.indexedMap (,) <|
-                List.map initResultModel data.results
-        , nextId = List.length data.results
-        }
-            ! []
+    { results =
+        List.indexedMap (,) <|
+            List.map Result.initModel data.results
+    , nextId = List.length data.results
+    }
+        ! []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

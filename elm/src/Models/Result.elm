@@ -38,10 +38,10 @@ type alias ResultObject =
     }
 
 
-initModel : Int -> ResultObject -> Model
-initModel lfId result =
+initModel : ResultObject -> Model
+initModel result =
     -- Create a Model instance from a ResultObject
-    { logframeId = lfId
+    { logframeId = result.log_frame
     , name = Field.initModel "Name" result.name
     , description = Field.initModel "Description" result.description
     }
@@ -59,8 +59,6 @@ type Msg
    The http request will use Http.post:
 
    post : Decoder value -> String -> Body -> Task Error value
-
-   Task.perform <| Http.post
 
    The post task will return either Http.Error or our decoded Json value.
    And wehave to turn both these into Cmd
@@ -128,16 +126,16 @@ type Msg
         process the returned data at least to extract the id.
 
 
-    -- A way to turn a Request object into Json string to serve as the payload
-       of the post request
+    -- A way to turn a Request object into Json string to serve as the body
+    (payload) of the post request.  We need to turn the:
 
-        We need to turn the
+        body = Http.string
 
     -- And then we write:
 
-     saveResult msgBack =
-         Http.post postResponseDecoder url body
-             |> Task.perform PostFail PostSucceed
+         saveResult msgBack =
+             Http.post postResponseDecoder url body
+                 |> Task.perform PostFail PostSucceed
 -}
 
 
