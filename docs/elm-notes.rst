@@ -144,7 +144,7 @@ TODO:
 
 - [x] Upgrade to Elm 0.18 
 
-- [ ] Use Http.jsonBody in the post request.
+- [x] Use Http.jsonBody in the post request.
 
 - [ ] The Success class on fields should stay for 2 seconds and then fade.
   Got the timer to remove the tag but it looks a bit sudden, maybe the 

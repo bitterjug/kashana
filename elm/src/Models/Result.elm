@@ -63,17 +63,6 @@ modelToResultObject model =
         model.logframeId
 
 
-
-{- When we upgrade to 0.18 this will look something like:
-   resultBody model =
-      model
-          |> modelToResultObject
-          |> resultToValueList
-          |> Json.Encode.object
-          |> Http.jsonBody
--}
-
-
 resultToValueList : ResultObject -> List ( String, Json.Encode.Value )
 resultToValueList result =
     [ ( "id", Json.Encode.int result.id )
@@ -166,7 +155,7 @@ type Msg
        - [x] A way to turn a Request object into Json string to serve as the body
        (payload) of the post request:  resultBody
 
-       -- And then we write something like:
+   -- And then we write something like:
 
    postResult : Model -> Field.Msg -> Cmd.Msg
    postRes model msgBack =
@@ -181,11 +170,11 @@ type Msg
                    |> modelToResultObject
                    |> resultToValueList
                    |> Json.Encode.object
-                   |> Json.Encode.encode 0
-                   |> Http.string
+                   |> Http.jsonBody
        in
            Http.post postResponseDecoder url resultBody
                |> Task.perform PostFail PostSucceed
+
 
 -}
 
