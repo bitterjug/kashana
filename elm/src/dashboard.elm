@@ -74,7 +74,7 @@ renderResults results =
         renderResult : ( ID, Result.Model ) -> Html Msg
         renderResult ( n, r ) =
             Result.render r
-                |> App.map (UpdateResult n)
+                |> Html.map (UpdateResult n)
     in
         div [] <|
             List.map (renderResult) results

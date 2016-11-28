@@ -178,7 +178,7 @@ update msg model =
             let
                 clearSucessFeedback =
                     Process.sleep (2 * Time.second)
-                        |> Task.perform (always NoOp) (always Clear)
+                        |> Task.perform (always Clear)
 
                 feedback =
                     case model.feedback of

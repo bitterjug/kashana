@@ -196,7 +196,7 @@ update msg model =
         saveResult : Field.Msg -> Cmd Msg
         saveResult msgBack =
             Process.sleep Time.second
-                |> Task.perform (always NoOp) (always (Saved msgBack))
+                |> Task.perform (always (Saved msgBack))
 
         updateField : Field.Msg -> Field.Model -> ( Field.Model, Cmd Msg )
         updateField msg field =
