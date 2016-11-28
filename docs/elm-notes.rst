@@ -141,7 +141,10 @@ TODO:
   separately, 
 
 - [ ] Refactor and pull all the ResltObject stuff out into its own module.
-- [ ] Upgrade to Elm 0.18 and use Http.jsonBody in the post request.
+
+- [x] Upgrade to Elm 0.18 
+
+- [ ] Use Http.jsonBody in the post request.
 
 - [ ] The Success class on fields should stay for 2 seconds and then fade.
   Got the timer to remove the tag but it looks a bit sudden, maybe the 

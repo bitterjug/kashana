@@ -147,15 +147,15 @@ type Msg
            Turns a (parsed, and decoded) response from server into a Cmd.
            Replaces  `(always (Saved msgBack))` in:
 
-               |> Task.perform (always NoOp) (always (Saved msgBack))
+               |> Task.perform  (always (Saved msgBack))
 
            At the moment, the fake request returns no data.
            So there is nothing to handle other than the fact that a
            post has been made, and Im assumin that it has been successful.
            Thus below we find:
 
-               |> Task.perform (always NoOp) (always (Saved msgBack))
-                                             ^^^^^^^^^^^^^^^^^^^^^^^^
+               |> Task.perform  (always (Saved msgBack))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^
            Which ignores any parameter and jut returns the Saved msgBack
            message, which will pass on msgBack to the field.
 
