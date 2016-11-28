@@ -2,7 +2,6 @@ port module Dashboard exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.App as App
 import Models.Result as Result
 
 
@@ -46,20 +45,20 @@ update msg model =
 
         UpdateResult id rmsg ->
             let
-                updateResult ( id', result ) =
-                    if id' == id then
+                updateResult ( id_, result ) =
+                    if id_ == id then
                         let
-                            ( result', cmd ) =
+                            ( result_, cmd ) =
                                 Result.update rmsg result
                         in
-                            ( ( id', result' ), cmd )
+                            ( ( id_, result_ ), cmd )
                     else
-                        ( ( id', result ), Cmd.none )
+                        ( ( id_, result ), Cmd.none )
 
-                ( results', cmds ) =
+                ( results_, cmds ) =
                     List.unzip (List.map updateResult model.results)
             in
-                ( { model | results = results' }
+                ( { model | results = results_ }
                 , Cmd.map (UpdateResult id) (Cmd.batch cmds)
                 )
 
@@ -88,7 +87,7 @@ view model =
 
 
 main =
-    App.programWithFlags
+    Html.programWithFlags
         { init = initWithFlags
         , view = view
         , update = update

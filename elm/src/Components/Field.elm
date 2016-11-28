@@ -1,4 +1,4 @@
-module Components.Field exposing (Model, value, Msg, Renderer, initModel, view, update, update')
+module Components.Field exposing (Model, value, Msg, Renderer, initModel, view, update, update_)
 
 import Dict
 import Html exposing (..)
@@ -103,7 +103,7 @@ view displayView model =
         edit : Html Msg
         edit =
             input
-                [ type' "text"
+                [ type_ "text"
                 , highlightStyle
                 , placeholder model.name
                 , Html.Attributes.value model.input
@@ -194,8 +194,8 @@ update msg model =
             { model | feedback = Normal } ! []
 
 
-update' : Msg -> Model -> ( Model, Maybe Msg )
-update' msg model =
+update_ : Msg -> Model -> ( Model, Maybe Msg )
+update_ msg model =
     -- Do a normal update but also check if the stored field value has changed.
     -- If it has, return Just Saved as the second element -- the Msg to send
     -- us back when the value change has been processed (e.g. saved to a server)

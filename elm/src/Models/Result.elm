@@ -3,7 +3,6 @@ module Models.Result exposing (..)
 import Components.Field as Field
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.App as App
 import Http
 import Json.Encode
 import Process
@@ -208,7 +207,7 @@ update msg model =
             -- effect: Cmd.none for Nothing, saveReslt msg for the other case.
             let
                 ( fieldUpd, maybeFieldMsg ) =
-                    Field.update' msg field
+                    Field.update_ msg field
             in
                 ( fieldUpd
                 , maybeFieldMsg
@@ -220,21 +219,21 @@ update msg model =
             NoOp ->
                 model ! []
 
-            UpdateName msg' ->
+            UpdateName msg_ ->
                 let
-                    ( name', cmd ) =
-                        updateField msg' model.name
+                    ( name_, cmd ) =
+                        updateField msg_ model.name
                 in
-                    ( { model | name = name' }, cmd )
+                    ( { model | name = name_ }, cmd )
 
-            UpdateDescription msg' ->
+            UpdateDescription msg_ ->
                 let
-                    ( description', cmd ) =
-                        updateField msg' model.description
+                    ( description_, cmd ) =
+                        updateField msg_ model.description
                 in
-                    ( { model | description = description' }, cmd )
+                    ( { model | description = description_ }, cmd )
 
-            Saved msg' ->
+            Saved msg_ ->
                 -- simulate http request with sleep
                 -- needs the whole model which I'm just logging for the moment
                 -- TODO: we're calling saved on all fields. MAybe we can get
@@ -246,10 +245,10 @@ update msg model =
                         Debug.log "saved" model
 
                     ( name_, nameCmd ) =
-                        Field.update msg' model.name
+                        Field.update msg_ model.name
 
                     ( description_, descCmd ) =
-                        Field.update msg' model.description
+                        Field.update msg_ model.description
                 in
                     { model
                         | name = name_
@@ -300,7 +299,7 @@ render result =
                                         , ( "ribbon-result", True )
                                         ]
                                     ]
-                                    [ App.map UpdateName <|
+                                    [ Html.map UpdateName <|
                                         Field.view renderName result.name
                                     ]
                                 ]
@@ -311,7 +310,7 @@ render result =
                                     [ text "Monitor" ]
                                 ]
                             , td [ class "overview-description" ]
-                                [ App.map UpdateDescription <|
+                                [ Html.map UpdateDescription <|
                                     Field.view renderDescription result.description
                                 ]
                             , td [ class "overview-rating" ]
