@@ -1,4 +1,4 @@
-module Components.Field exposing (Model, Msg, Renderer, initModel, view, update, update')
+module Components.Field exposing (Model, value, Msg, Renderer, initModel, view, update, update')
 
 import Dict
 import Html exposing (..)
@@ -46,6 +46,11 @@ initModel name value =
     , feedback = Normal
     , editing = False
     }
+
+
+value : Model -> String
+value model =
+    model.value
 
 
 
@@ -101,7 +106,7 @@ view displayView model =
                 [ type' "text"
                 , highlightStyle
                 , placeholder model.name
-                , value model.input
+                , Html.Attributes.value model.input
                 , autofocus True
                 , name model.name
                 , onInput UpdateInput

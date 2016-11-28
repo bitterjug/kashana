@@ -5,13 +5,15 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.App as App
 import Http
+import Json.Encode
 import Process
 import Task
 import Time
 
 
 type alias Model =
-    { logframeId : Int
+    { id : Int
+    , logframeId : Int
     , name : Field.Model
     , description : Field.Model
     }
@@ -40,11 +42,57 @@ type alias ResultObject =
 
 initModel : ResultObject -> Model
 initModel result =
-    -- Create a Model instance from a ResultObject
-    { logframeId = result.log_frame
+    { id = result.id
+    , logframeId = result.log_frame
     , name = Field.initModel "Name" result.name
     , description = Field.initModel "Description" result.description
     }
+
+
+modelToResultObject : Model -> ResultObject
+modelToResultObject model =
+    ResultObject
+        model.id
+        (Field.value model.name)
+        (Field.value model.description)
+        0
+        -- order
+        0
+        -- level
+        0
+        -- contribution_weighting
+        model.logframeId
+
+
+resultBody : Model -> Http.Body
+resultBody model =
+    model
+        |> modelToResultObject
+        |> resultToValueList
+        |> Json.Encode.object
+        |> Json.Encode.encode 0
+        |> Http.string
+
+
+
+{- When we upgrade to 0.18 this will look something like:
+   resultBody model =
+      model
+          |> modelToResultObject
+          |> resultToValueList
+          |> Json.Encode.object
+          |> Http.jsonBody
+-}
+
+
+resultToValueList : ResultObject -> List ( String, Json.Encode.Value )
+resultToValueList result =
+    [ ( "id", Json.Encode.int result.id )
+    , ( "name", Json.Encode.string result.name )
+    , ( "description", Json.Encode.string result.description )
+      -- skip a bit, brother
+    , ( "log_frame", Json.Encode.int result.log_frame )
+    ]
 
 
 type Msg
@@ -127,14 +175,14 @@ type Msg
 
 
     -- A way to turn a Request object into Json string to serve as the body
-    (payload) of the post request.  We need to turn the:
+    (payload) of the post request.
 
-        body = Http.string
+    resultBody
 
     -- And then we write:
 
          saveResult msgBack =
-             Http.post postResponseDecoder url body
+             Http.post postResponseDecoder url (resultBody model)
                  |> Task.perform PostFail PostSucceed
 -}
 
