@@ -140,6 +140,7 @@ TODO:
   the results list. That needs to be fixed to treat individual Results
   separately, 
 
+- [ ] Refactor and pull all the ResltObject stuff out into its own module.
 - [ ] Upgrade to Elm 0.18 and use Http.jsonBody in the post request.
 
 - [ ] The Success class on fields should stay for 2 seconds and then fade.
