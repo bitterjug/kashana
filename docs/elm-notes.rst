@@ -86,6 +86,16 @@ Oops! We lost integrity of the updating status
 Do we need to send a token, or hash, with each edit to say what we're awaiting?
 Like a sliding window protocol, we're awaiting an Ack for edit 36, etc.?
 
+Or maybe at least send he field id. At the moment we use cases in the Message
+type for updates to any of the fields. But this duplicates the structure of the 
+record in the message type which is probably redundant. And in any case we have
+a second record which is a version of the original record with the editable
+fields replaced with field. How about an abstraction something like a django
+form which comprises a dictionary of field names and the corresponding field
+object? Then we could probably simplify handling of the update messages AND
+the Saved message passing the field name around as an extra parameter. 
+- It introduces a new failure case where we get a string that doesn't
+  correspond to one of our actual fields. But it might end up with less code.
 
 What is the model for Result
 -----------------------------
