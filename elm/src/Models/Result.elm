@@ -116,41 +116,35 @@ type Msg
        postResponseDecoder =
            Json.Decoder PostResponse
 
-       - [ ] New case in Msg for the Error:
+        See Jsontest.Jt
+
+       - [ ] New case in the Msg for handling the result of the POST. The Jason
+         payload shold be decoded into a ResultObject. Or the Post might fail
+         with an http error:
 
            , ...
-           , PostFail Http.Error
+           , PostResponse Field.Msg (Result Http.Error ResultObject)
 
 
-           PostFail can be used to construct  Msgs from Http errors.
-           Replaces `(always NoOp)` in:
+           The handler case for this will switch on success or failure and act
+           accordingly. For success it will forward the field.Msg to the appropriate
+           field: effectively the same as Saved does at the moment.
 
-               |> Task.perform (always NoOp) (always (Saved msgBack))
-
-       - [ ] New case in the Msg for handling the return value
-
-           , ...
-           , PostSucceed PostResponse
-
-
-           Turns a (parsed, and decoded) response from server into a Cmd.
-           Replaces  `(always (Saved msgBack))` in:
-
-               |> Task.perform  (always (Saved msgBack))
-
-           At the moment, the fake request returns no data.
-           So there is nothing to handle other than the fact that a
-           post has been made, and Im assumin that it has been successful.
-           Thus below we find:
+           We're going to change our `Task.perform` into a `Task.attempt`.
+           At the moment, the fake request returns no data.  So there is
+           nothing to handle other than the fact that a post has been made, and
+           Im assuming that it has been successful.  Thus below we find:
 
                |> Task.perform  (always (Saved msgBack))
                                 ^^^^^^^^^^^^^^^^^^^^^^^^
-           Which ignores any parameter and jut returns the Saved msgBack
+           Which ignores any parameter and just returns the Saved msgBack
            message, which will pass on msgBack to the field.
 
            When we get someting back from the server, we may need to
            process the returned data at least to extract the id.
 
+           <task>
+               |> Task.attempt  (PostResponse msgBack)
 
        - [x] A way to turn a Request object into Json string to serve as the body
        (payload) of the post request:  resultBody
@@ -173,7 +167,7 @@ type Msg
                    |> Http.jsonBody
        in
            Http.post postResponseDecoder url resultBody
-               |> Task.perform PostFail PostSucceed
+               |> Task.attempt (PostResponse msgBack)
 
 
 -}
@@ -208,21 +202,21 @@ update msg model =
             NoOp ->
                 model ! []
 
-            UpdateName msg_ ->
+            UpdateName fieldMsg ->
                 let
                     ( name_, cmd ) =
-                        updateField msg_ model.name
+                        updateField fieldMsg model.name
                 in
                     ( { model | name = name_ }, cmd )
 
-            UpdateDescription msg_ ->
+            UpdateDescription fieldMsg ->
                 let
                     ( description_, cmd ) =
-                        updateField msg_ model.description
+                        updateField fieldMsg model.description
                 in
                     ( { model | description = description_ }, cmd )
 
-            Saved msg_ ->
+            Saved fieldMsg ->
                 -- simulate http request with sleep
                 -- needs the whole model which I'm just logging for the moment
                 -- TODO: we're calling saved on all fields. MAybe we can get
@@ -234,10 +228,10 @@ update msg model =
                         Debug.log "saved" model
 
                     ( name_, nameCmd ) =
-                        Field.update msg_ model.name
+                        Field.update fieldMsg model.name
 
                     ( description_, descCmd ) =
-                        Field.update msg_ model.description
+                        Field.update fieldMsg model.description
                 in
                     { model
                         | name = name_
