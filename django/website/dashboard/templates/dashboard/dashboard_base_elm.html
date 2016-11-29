@@ -12,6 +12,7 @@
 <script>
 (function () {
     Aptivate = { data: {{ data|safe }} };
+    Aptivate.data.csrf_token = "{{ csrf_token }}"
 })();
 </script>
 {% endblock post_footer %}

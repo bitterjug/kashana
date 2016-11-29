@@ -23,7 +23,7 @@ type Msg
 
 type alias AptivateData =
     { results : List Result.ResultObject
-    , logframe : { id : Int, name : String }
+    , csrf_token : String
     }
 
 

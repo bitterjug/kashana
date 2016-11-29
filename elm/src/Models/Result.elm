@@ -40,6 +40,19 @@ type alias ResultObject =
     }
 
 
+safePost : String -> String -> Http.Body -> Jd.Decoder a -> Http.Request a
+safePost token url body decoder =
+    Http.request
+        { method = "POST"
+        , headers = [ Http.header "X-CSRFToken" token ]
+        , url = url
+        , body = body
+        , expect = Http.expectJson decoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
+
+
 initModel : ResultObject -> Model
 initModel result =
     { id = result.id
