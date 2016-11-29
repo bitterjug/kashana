@@ -112,26 +112,8 @@ postResponseDecoder =
        - [x] New case in the Msg for handling the result of the POST.
              The Jason payload shold be decoded into a ResultObject.
              Or the Post might fail with an http error: PostResponse
-
        - [x] New handler in update for PostResponse: The handler case for this
              will switch on success or failure and act accordingly.
-
-       - [x] We're going to change our `Task.perform` into a `Task.attempt`.
-             At the moment, the fake request returns no data.  So there is
-             nothing to handle other than the fact that a post has been made,
-             and Im assuming that it has been successful.  Thus below we find:
-
-               |> Task.perform  (always (Saved msgBack))
-                                ^^^^^^^^^^^^^^^^^^^^^^^^
-           Which ignores any parameter and just returns the Saved msgBack
-           message, which will pass on msgBack to the field.
-
-           When we get someting back from the server, we may need to
-           process the returned data at least to extract the id.
-
-           <task>
-               |> Task.attempt  (PostResponse msgBack)
-
 
    -- And then we write something like:
 
@@ -160,6 +142,23 @@ postResponseDecoder =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
+        postResult : Model -> Field.Msg -> Cmd Msg
+        postResult model msgBack =
+            let
+                url =
+                    "/api/logframes/" ++ (Basics.toString model.logframeId) ++ "/results"
+
+                resultBody =
+                    model
+                        |> modelToResultObject
+                        |> resultToValueList
+                        |> Json.Encode.object
+                        |> Http.jsonBody
+            in
+                Http.post url resultBody postResponseDecoder
+                    |> Http.send (PostResponse msgBack)
+
+        -- Task.attempt (PostResponse msgBack) (Http.post url resultBody postResponseDecoder)
         saveResult : Field.Msg -> Cmd Msg
         saveResult msgBack =
             Process.sleep Time.second
