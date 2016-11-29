@@ -152,6 +152,10 @@ TODO:
 
 - [ ] Fix CSRF forgery warning from server
 
+  Need to add token param to Result.update and pass down from dashboard.
+  Dashoard gets it from initWithFlags and stores in global scope.
+
+
 - [ ] Refactor and pull all the ResltObject stuff out into its own module.
 
 - [x] Upgrade to Elm 0.18 
