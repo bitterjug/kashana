@@ -142,11 +142,13 @@ postResponseDecoder =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
-        postResult : Model -> Field.Msg -> Cmd Msg
-        postResult model msgBack =
+        postResult : Field.Msg -> Cmd Msg
+        postResult msgBack =
             let
                 url =
-                    "/api/logframes/" ++ (Basics.toString model.logframeId) ++ "/results"
+                    "/api/logframes/"
+                        ++ (Basics.toString model.logframeId)
+                        ++ "/results"
 
                 resultBody =
                     model
@@ -158,7 +160,6 @@ update msg model =
                 Http.post url resultBody postResponseDecoder
                     |> Http.send (PostResponse msgBack)
 
-        -- Task.attempt (PostResponse msgBack) (Http.post url resultBody postResponseDecoder)
         saveResult : Field.Msg -> Cmd Msg
         saveResult msgBack =
             Process.sleep Time.second
@@ -177,7 +178,7 @@ update msg model =
             in
                 ( fieldUpd
                 , maybeFieldMsg
-                    |> Maybe.map saveResult
+                    |> Maybe.map postResult
                     >> Maybe.withDefault Cmd.none
                 )
     in
