@@ -150,6 +150,8 @@ TODO:
   the results list. That needs to be fixed to treat individual Results
   separately, 
 
+- [ ] Fix CSRF forgery warning from server
+
 - [ ] Refactor and pull all the ResltObject stuff out into its own module.
 
 - [x] Upgrade to Elm 0.18 
