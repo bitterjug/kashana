@@ -179,7 +179,7 @@ TODO:
   - [x] New handler in update for PostResponse: The handler case for this
         will switch on success or failure and act accordingly.
 
-- [ ] Change the logic of `updateField`. At the moment `postResult` refers to
+- [x] Change the logic of `updateField`. At the moment `postResult` refers to
   the bound `model` from update. (I just refactored that a bit so it gets
   passed in in `updateField`, but its the same problem, its the model before
   the change that we're sending off. We need instead to send the post-change
@@ -197,6 +197,11 @@ TODO:
         >> Maybe.withDefault Cmd.none
 
 
+- [ ] At the moment the post request appears to be creating a new object each
+  time. So I think we're doing something wrong with the Result.id. They keep 
+  incrementing.
+
+  
 - [ ] Refactor and pull all the `ResltObject` stuff out into its own module.
 
 - [ ] The Success class on fields should stay for 2 seconds and then fade.
