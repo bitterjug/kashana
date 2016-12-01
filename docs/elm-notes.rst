@@ -150,24 +150,61 @@ TODO:
   the results list. That needs to be fixed to treat individual Results
   separately, 
 
-- [ ] Fix CSRF forgery warning from server
+- [x] Fix CSRF forgery warning from server
 
   Need to add token param to Result.update and pass down from dashboard.
   Dashoard gets it from initWithFlags and stores in global scope.
 
-
-- [ ] Refactor and pull all the ResltObject stuff out into its own module.
-
 - [x] Upgrade to Elm 0.18 
 
 - [x] Use Http.jsonBody in the post request.
+
+- [x] Make a real POST request to the server when we update a field.
+   The http request will use Http.post::
+
+   post : Decoder value -> String -> Body -> Task Error value
+
+  So, we need:
+  - [x] The url for the post to results: url
+  - [x] A type to talk about the stuf that comes back from the server in
+        response to a successful post message. This turns out to be json
+        encding of ResltObject, and gets decoced by one of the parameters
+        to Post. So we don't need a new type for it.
+  - [x] A Json decoder for whatever comes back from the API: postResponseDecoder
+  - [x] A way to turn a Request object into Json string to serve as the
+        body (payload) of the post request:  resultBody
+  - [x] New case in the Msg for handling the result of the POST.
+        The Jason payload shold be decoded into a ResultObject.
+        Or the Post might fail with an http error: PostResponse
+  - [x] New handler in update for PostResponse: The handler case for this
+        will switch on success or failure and act accordingly.
+
+- [ ] Change the logic of `updateField`. At the moment `postResult` refers to
+  the bound `model` from update. (I just refactored that a bit so it gets
+  passed in in `updateField`, but its the same problem, its the model before
+  the change that we're sending off. We need instead to send the post-change
+  model off. So we need to separate the bit of `updateField` that updates the
+  field and gets back the `maybeFieldMsg` from the bit that maps `postResult`
+  over it to create the `Cmd`.
+
+  Something like::
+
+    let
+      (name_, maybeFieldMsg) = Field.update_ msg field
+      model_ = { model | name = name_ }
+      cmd = maybeFieldMsg 
+        |> Maybe.map (postResult model_) 
+        >> Maybe.withDefault Cmd.none
+
+
+- [ ] Refactor and pull all the `ResltObject` stuff out into its own module.
 
 - [ ] The Success class on fields should stay for 2 seconds and then fade.
   Got the timer to remove the tag but it looks a bit sudden, maybe the 
   CSS transitions don't work when you splice in new bits of the DOM like
   Elm's shadow DOM does.
 
-- [ ] Adding the class attributes to do the formatting above broke he default
+- [ ] Adding the class attributes to do the formatting above broke the default
   classes because now there are 2 sets of `Attribute Msg` being combined
   naively with concatenation, but each contain `className` specifiers that
   aren't being combined. Question with Elm mail list.
@@ -177,14 +214,6 @@ TODO:
   necessary ?? But I think we ought really to only be doing the Field.Msg.Saved
   update on the field from which the save Cmd originated.
 
-- [ ] Make a real POST request to the server when we update a field.
-
-  What would one of these look like?
-
-  - We need to trigger an http request as a Cmd
-  - The results are going to be JSON that we'll have to parse
-    
-  
 - [ ] have a placeholder for new Results.
 
 - [ ] Looks like it might be possible (not sure if desirable) to separate the

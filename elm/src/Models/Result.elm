@@ -16,6 +16,7 @@ type alias Model =
     , logframeId : Int
     , name : Field.Model
     , description : Field.Model
+    , order : Int
     }
 
 
@@ -59,6 +60,7 @@ initModel result =
     , logframeId = result.log_frame
     , name = Field.initModel "Name" result.name
     , description = Field.initModel "Description" result.description
+    , order = result.order
     }
 
 
@@ -68,8 +70,7 @@ modelToResultObject model =
         model.id
         (Field.value model.name)
         (Field.value model.description)
-        0
-        -- order
+        model.order
         0
         -- level
         0
@@ -84,6 +85,7 @@ resultToValueList result =
     , ( "description", Json.Encode.string result.description )
       -- skip a bit, brother
     , ( "log_frame", Json.Encode.int result.log_frame )
+    , ( "order", Json.Encode.int result.order )
     ]
 
 
@@ -107,35 +109,11 @@ postResponseDecoder =
         (Jd.field "log_frame" Jd.int)
 
 
-
-{-
-   The http request will use Http.post:
-
-   post : Decoder value -> String -> Body -> Task Error value
-
-    So, we need:
-    - [x] The url for the post to results: url
-    - [x] A type to talk about the stuf that comes back from the server in
-          response to a successful post message. This turns out to be json
-          encding of ResltObject, and gets decoced by one of the parameters
-          to Post. So we don't need a new type for it.
-    - [x] A Json decoder for whatever comes back from the API: postResponseDecoder
-    - [x] A way to turn a Request object into Json string to serve as the
-          body (payload) of the post request:  resultBody
-    - [x] New case in the Msg for handling the result of the POST.
-          The Jason payload shold be decoded into a ResultObject.
-          Or the Post might fail with an http error: PostResponse
-    - [x] New handler in update for PostResponse: The handler case for this
-          will switch on success or failure and act accordingly.
-
--}
-
-
 update : String -> Msg -> Model -> ( Model, Cmd Msg )
 update csrfToken msg model =
     let
-        postResult : Field.Msg -> Cmd Msg
-        postResult msgBack =
+        postResult : Model -> Field.Msg -> Cmd Msg
+        postResult model_ msgBack =
             let
                 url =
                     "/api/logframes/"
@@ -143,7 +121,7 @@ update csrfToken msg model =
                         ++ "/results"
 
                 resultBody =
-                    model
+                    model_
                         |> modelToResultObject
                         |> resultToValueList
                         |> Json.Encode.object
@@ -156,23 +134,6 @@ update csrfToken msg model =
         saveResult msgBack =
             Process.sleep Time.second
                 |> Task.perform (always (Saved msgBack))
-
-        updateField : Field.Msg -> Field.Model -> ( Field.Model, Cmd Msg )
-        updateField msg field =
-            -- Update a field. Using update', if the stored value changed,
-            -- we get back a Just msg (as maybeFieldMsg) to send to the field
-            -- when we've processed the change (i.e. saved it to the server);
-            -- otherwise Nothing.  We turn maybeFieldMsg into the Cmd side
-            -- effect: Cmd.none for Nothing, saveReslt msg for the other case.
-            let
-                ( fieldUpd, maybeFieldMsg ) =
-                    Field.update_ msg field
-            in
-                ( fieldUpd
-                , maybeFieldMsg
-                    |> Maybe.map postResult
-                    >> Maybe.withDefault Cmd.none
-                )
     in
         case msg of
             NoOp ->
@@ -180,17 +141,33 @@ update csrfToken msg model =
 
             UpdateName fieldMsg ->
                 let
-                    ( name_, cmd ) =
-                        updateField fieldMsg model.name
+                    ( name_, maybeFieldMsg ) =
+                        Field.update_ fieldMsg model.name
+
+                    model_ =
+                        { model | name = name_ }
+
+                    cmd =
+                        maybeFieldMsg
+                            |> Maybe.map (postResult model_)
+                            >> Maybe.withDefault Cmd.none
                 in
-                    ( { model | name = name_ }, cmd )
+                    ( model_, cmd )
 
             UpdateDescription fieldMsg ->
                 let
-                    ( description_, cmd ) =
-                        updateField fieldMsg model.description
+                    ( description_, maybeFieldMsg ) =
+                        Field.update_ fieldMsg model.description
+
+                    model_ =
+                        { model | description = description_ }
+
+                    cmd =
+                        maybeFieldMsg
+                            |> Maybe.map (postResult model_)
+                            >> Maybe.withDefault Cmd.none
                 in
-                    ( { model | description = description_ }, cmd )
+                    ( model_, cmd )
 
             PostResponse fieldMsg (Ok resultObject) ->
                 let
