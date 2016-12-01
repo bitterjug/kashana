@@ -109,51 +109,30 @@ postResponseDecoder =
 
 
 {-
-      The http request will use Http.post:
+   The http request will use Http.post:
 
-      post : Decoder value -> String -> Body -> Task Error value
+   post : Decoder value -> String -> Body -> Task Error value
 
-       So, we need:
-       - [x] The url for the post to results: url
-       - [x] A type to talk about the stuf that comes back from the server in
-             response to a successful post message. This turns out to be json
-             encding of ResltObject, and gets decoced by one of the parameters
-             to Post. So we don't need a new type for it.
-       - [x] A Json decoder for whatever comes back from the API: postResponseDecoder
-       - [x] A way to turn a Request object into Json string to serve as the
-             body (payload) of the post request:  resultBody
-       - [x] New case in the Msg for handling the result of the POST.
-             The Jason payload shold be decoded into a ResultObject.
-             Or the Post might fail with an http error: PostResponse
-       - [x] New handler in update for PostResponse: The handler case for this
-             will switch on success or failure and act accordingly.
-
-   -- And then we write something like:
-
-   postResult : Model -> Field.Msg -> Cmd.Msg
-   postRes model msgBack =
-       let
-           url =
-               "/api/logframes/"
-                   ++ (Basics.toString model.logframeId)
-                   ++ "/results"
-
-           resultBody =
-               model
-                   |> modelToResultObject
-                   |> resultToValueList
-                   |> Json.Encode.object
-                   |> Http.jsonBody
-       in
-           Http.post postResponseDecoder url resultBody
-               |> Task.attempt (PostResponse msgBack)
-
+    So, we need:
+    - [x] The url for the post to results: url
+    - [x] A type to talk about the stuf that comes back from the server in
+          response to a successful post message. This turns out to be json
+          encding of ResltObject, and gets decoced by one of the parameters
+          to Post. So we don't need a new type for it.
+    - [x] A Json decoder for whatever comes back from the API: postResponseDecoder
+    - [x] A way to turn a Request object into Json string to serve as the
+          body (payload) of the post request:  resultBody
+    - [x] New case in the Msg for handling the result of the POST.
+          The Jason payload shold be decoded into a ResultObject.
+          Or the Post might fail with an http error: PostResponse
+    - [x] New handler in update for PostResponse: The handler case for this
+          will switch on success or failure and act accordingly.
 
 -}
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : String -> Msg -> Model -> ( Model, Cmd Msg )
+update csrfToken msg model =
     let
         postResult : Field.Msg -> Cmd Msg
         postResult msgBack =
@@ -170,7 +149,7 @@ update msg model =
                         |> Json.Encode.object
                         |> Http.jsonBody
             in
-                Http.post url resultBody postResponseDecoder
+                safePost csrfToken url resultBody postResponseDecoder
                     |> Http.send (PostResponse msgBack)
 
         saveResult : Field.Msg -> Cmd Msg

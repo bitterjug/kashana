@@ -13,6 +13,7 @@ type alias Model =
     -- The dashboard model comprises a list of results
     { results : List ( ID, Result.Model )
     , nextId : ID
+    , csrfToken : String
     }
 
 
@@ -33,6 +34,7 @@ initWithFlags data =
         List.indexedMap (,) <|
             List.map Result.initModel data.results
     , nextId = List.length data.results
+    , csrfToken = data.csrf_token
     }
         ! []
 
@@ -49,7 +51,7 @@ update msg model =
                     if id_ == id then
                         let
                             ( result_, cmd ) =
-                                Result.update rmsg result
+                                Result.update model.csrfToken rmsg result
                         in
                             ( ( id_, result_ ), cmd )
                     else
