@@ -41,10 +41,10 @@ type alias ResultObject =
     }
 
 
-safePost : String -> String -> Http.Body -> Jd.Decoder a -> Http.Request a
-safePost token url body decoder =
+safeRequest : String -> String -> String -> Http.Body -> Jd.Decoder a -> Http.Request a
+safeRequest requestType token url body decoder =
     Http.request
-        { method = "POST"
+        { method = requestType
         , headers = [ Http.header "X-CSRFToken" token ]
         , url = url
         , body = body
@@ -52,6 +52,16 @@ safePost token url body decoder =
         , timeout = Nothing
         , withCredentials = False
         }
+
+
+put : String -> String -> Http.Body -> Jd.Decoder a -> Http.Request a
+put =
+    safeRequest "PUT"
+
+
+post : String -> String -> Http.Body -> Jd.Decoder a -> Http.Request a
+post =
+    safeRequest "POST"
 
 
 initModel : ResultObject -> Model
@@ -115,19 +125,20 @@ update csrfToken msg model =
         postResult : Model -> Field.Msg -> Cmd Msg
         postResult model_ msgBack =
             let
-                url =
-                    "/api/logframes/"
-                        ++ (Basics.toString model.logframeId)
-                        ++ "/results"
-
                 resultBody =
                     model_
                         |> modelToResultObject
                         |> resultToValueList
                         |> Json.Encode.object
                         |> Http.jsonBody
+
+                url =
+                    "/api/logframes/"
+                        ++ (Basics.toString model_.logframeId)
+                        ++ "/results/"
+                        ++ toString model_.id
             in
-                safePost csrfToken url resultBody postResponseDecoder
+                put csrfToken url resultBody postResponseDecoder
                     |> Http.send (PostResponse msgBack)
 
         saveResult : Field.Msg -> Cmd Msg
