@@ -197,12 +197,15 @@ TODO:
         >> Maybe.withDefault Cmd.none
 
 
-- [ ] At the moment the post request appears to be creating a new object each
+- [x] At the moment the post request appears to be creating a new object each
   time. So I think we're doing something wrong with the Result.id. They keep 
-  incrementing.
-
+  incrementing. Turned out to be because we were using POST. The proper thing
+  to do to update an existing object is PUT to its endpoint.
   
-- [ ] Refactor and pull all the `ResltObject` stuff out into its own module.
+- [ ] Refactor and pull all the `ResultObject` stuff out into its own module.
+
+- [ ] have a placeholder for new Results. And use POST to create a new object 
+  when we are sending the placeholder's contents.
 
 - [ ] The Success class on fields should stay for 2 seconds and then fade.
   Got the timer to remove the tag but it looks a bit sudden, maybe the 
@@ -219,7 +222,6 @@ TODO:
   necessary ?? But I think we ought really to only be doing the Field.Msg.Saved
   update on the field from which the save Cmd originated.
 
-- [ ] have a placeholder for new Results.
 
 - [ ] Looks like it might be possible (not sure if desirable) to separate the
   logic for saving the data in a field from the rest of field's behaviour. 
