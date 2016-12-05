@@ -1,5 +1,6 @@
 module Models.Result exposing (..)
 
+import Api
 import Components.Field as Field
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -7,6 +8,7 @@ import Http
 import Json.Encode
 import Json.Decode as Jd
 import Process
+import Models.ResultObject as ResultObject
 import Task
 import Time
 
@@ -20,51 +22,7 @@ type alias Model =
     }
 
 
-type alias ResultObject =
-    -- Type of the Aptivate.results objects used to initialize the app
-    { id : Int
-    , name : String
-    , description : String
-    , order :
-        Int
-        -- parent: null,
-    , level : Int
-    , contribution_weighting :
-        Int
-        -- "risk_rating": null,
-        -- "rating": null,
-    , log_frame :
-        Int
-        -- "indicators": [],
-        -- activities: List ActivityId
-        -- "assumptions": []
-    }
-
-
-safeRequest : String -> String -> String -> Http.Body -> Jd.Decoder a -> Http.Request a
-safeRequest requestType token url body decoder =
-    Http.request
-        { method = requestType
-        , headers = [ Http.header "X-CSRFToken" token ]
-        , url = url
-        , body = body
-        , expect = Http.expectJson decoder
-        , timeout = Nothing
-        , withCredentials = False
-        }
-
-
-put : String -> String -> Http.Body -> Jd.Decoder a -> Http.Request a
-put =
-    safeRequest "PUT"
-
-
-post : String -> String -> Http.Body -> Jd.Decoder a -> Http.Request a
-post =
-    safeRequest "POST"
-
-
-initModel : ResultObject -> Model
+initModel : ResultObject.Model -> Model
 initModel result =
     { id = result.id
     , logframeId = result.log_frame
@@ -74,9 +32,9 @@ initModel result =
     }
 
 
-modelToResultObject : Model -> ResultObject
+modelToResultObject : Model -> ResultObject.Model
 modelToResultObject model =
-    ResultObject
+    ResultObject.Model
         model.id
         (Field.value model.name)
         (Field.value model.description)
@@ -88,35 +46,12 @@ modelToResultObject model =
         model.logframeId
 
 
-resultToValueList : ResultObject -> List ( String, Json.Encode.Value )
-resultToValueList result =
-    [ ( "id", Json.Encode.int result.id )
-    , ( "name", Json.Encode.string result.name )
-    , ( "description", Json.Encode.string result.description )
-      -- skip a bit, brother
-    , ( "log_frame", Json.Encode.int result.log_frame )
-    , ( "order", Json.Encode.int result.order )
-    ]
-
-
 type Msg
     = UpdateName Field.Msg
     | UpdateDescription Field.Msg
     | Saved Field.Msg
     | NoOp
-    | PostResponse Field.Msg (Result Http.Error ResultObject)
-
-
-postResponseDecoder : Jd.Decoder ResultObject
-postResponseDecoder =
-    Jd.map7 ResultObject
-        (Jd.field "id" Jd.int)
-        (Jd.field "name" Jd.string)
-        (Jd.field "description" Jd.string)
-        (Jd.field "order" Jd.int)
-        (Jd.field "level" Jd.int)
-        (Jd.field "contribution_weighting" Jd.int)
-        (Jd.field "log_frame" Jd.int)
+    | PostResponse Field.Msg (Result Http.Error ResultObject.Model)
 
 
 update : String -> Msg -> Model -> ( Model, Cmd Msg )
@@ -128,8 +63,7 @@ update csrfToken msg model =
                 resultBody =
                     model_
                         |> modelToResultObject
-                        |> resultToValueList
-                        |> Json.Encode.object
+                        |> ResultObject.encode
                         |> Http.jsonBody
 
                 url =
@@ -138,7 +72,7 @@ update csrfToken msg model =
                         ++ "/results/"
                         ++ toString model_.id
             in
-                put csrfToken url resultBody postResponseDecoder
+                Api.put csrfToken url resultBody ResultObject.decode
                     |> Http.send (PostResponse msgBack)
 
         saveResult : Field.Msg -> Cmd Msg

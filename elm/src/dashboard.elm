@@ -3,6 +3,7 @@ port module Dashboard exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Models.Result as Result
+import Models.ResultObject as ResultObject
 
 
 type alias ID =
@@ -23,7 +24,7 @@ type Msg
 
 
 type alias AptivateData =
-    { results : List Result.ResultObject
+    { results : List ResultObject.Model
     , csrf_token : String
     }
 
