@@ -44,6 +44,7 @@ Here's the problem broken down:
 - First response from server, app updates the field to normal styling -- no 
   crosshatching.
 Oops! We lost integrity of the updating status
+
 - Second server response arrives. Okay, we update the field contents but there
   was no indicator that we were still awaiting this response.
 
@@ -58,8 +59,19 @@ fields replaced with field. How about an abstraction something like a django
 form which comprises a dictionary of field names and the corresponding field
 object? Then we could probably simplify handling of the update messages AND
 the Saved message passing the field name around as an extra parameter. 
+
 - It introduces a new failure case where we get a string that doesn't
   correspond to one of our actual fields. But it might end up with less code.
+
+IDs
+----
+
+I've created two schemes of IDs for results. There are the internal IDs
+allocated by the server and the ones used by the UI to identify which one to
+edit.  I wonder how these will live together. IT raises a problem for the 
+placeholder: what should the ID value be? In JS it can be null. Should I use
+the server IDs as the ui IDs? Those are really just indexes. Should I use
+a sentinel value like `-1`?
 
 TODO:
 =====
@@ -105,8 +117,8 @@ TODO:
 
 - [x] Fix CSRF forgery warning from server
 
-  Need to add token param to Result.update and pass down from dashboard.
-  Dashoard gets it from initWithFlags and stores in global scope.
+  Need to add token parameter to Result.update and pass down from dashboard.
+  Dashboard gets it from `initWithFlags` and stores in global scope.
 
 - [x] Upgrade to Elm 0.18 
 
@@ -118,18 +130,24 @@ TODO:
    post : Decoder value -> String -> Body -> Task Error value
 
   So, we need:
+
   - [x] The url for the post to results: url
-  - [x] A type to talk about the stuf that comes back from the server in
-        response to a successful post message. This turns out to be json
-        encding of ResltObject, and gets decoced by one of the parameters
+
+  - [x] A type to talk about the stuff that comes back from the server in
+        response to a successful post message. This turns out to be Json
+        encoding of `ResltObject`, and gets decoded by one of the parameters
         to Post. So we don't need a new type for it.
-  - [x] A Json decoder for whatever comes back from the API: postResponseDecoder
+
+      - [x] A Json decoder for whatever comes back from the `API: postResponseDecoder`
+
   - [x] A way to turn a Request object into Json string to serve as the
-        body (payload) of the post request:  resultBody
-  - [x] New case in the Msg for handling the result of the POST.
-        The Jason payload shold be decoded into a ResultObject.
-        Or the Post might fail with an http error: PostResponse
-  - [x] New handler in update for PostResponse: The handler case for this
+        body (payload) of the post request:  `resultBody`
+
+  - [x] New case in the `Msg` for handling the result of the POST.
+        The Jason payload should be decoded into a `ResultObject`.
+        Or the Post might fail with an http error: `PostResponse`
+
+  - [x] New handler in update for `PostResponse`: The handler case for this
         will switch on success or failure and act accordingly.
 
 - [x] Change the logic of `updateField`. At the moment `postResult` refers to
@@ -157,6 +175,7 @@ TODO:
   
 - [x] Refactor and pull all the `ResultObject` stuff out into its own module.
 
+
 - [ ] have a placeholder for new Results. And use POST to create a new object 
   when we are sending the placeholder's contents.
 
@@ -172,7 +191,7 @@ TODO:
 
 - [ ] At present I call the Saved updater on all fields of a Result when the
   (Fake) server confirms it has saved the value successfully. This _might_ be
-  necessary ?? But I think we ought really to only be doing the Field.Msg.Saved
+  necessary ?? But I think we ought really to only be doing the `Field.Msg.Saved`
   update on the field from which the save Cmd originated.
 
 - [ ] Looks like it might be possible (not sure if desirable) to separate the
@@ -184,6 +203,11 @@ TODO:
 Build
 -----
 
-elm-make src/dashboard.elm  --output build/dashboard.js
+To build::
 
-http://127.0.0.1:8000/dashboard-elm/test/
+    elm-make src/dashboard.elm  --output build/dashboard.js
+
+
+Then visit::
+
+  http://127.0.0.1:8000/dashboard-elm/test/
