@@ -4,7 +4,7 @@ What is the model?
 ------------------
 
 In the backbone version, each field has a ref to the model object and the name
-of the attribute for which it is responsible.  And the `field.js` takes
+of the attribute for which it is responsible.  And the ``field.js`` takes
 responsibility for saving the model when an field is changed. 
 
 In Elm I've so far given an input field a model comprising only the state it
@@ -55,7 +55,7 @@ Or maybe at least send he field id. At the moment we use cases in the Message
 type for updates to any of the fields. But this duplicates the structure of the 
 record in the message type which is probably redundant. And in any case we have
 a second record which is a version of the original record with the editable
-fields replaced with field. How about an abstraction something like a django
+fields replaced with field. How about an abstraction something like a Django
 form which comprises a dictionary of field names and the corresponding field
 object? Then we could probably simplify handling of the update messages AND
 the Saved message passing the field name around as an extra parameter. 
@@ -71,7 +71,13 @@ allocated by the server and the ones used by the UI to identify which one to
 edit.  I wonder how these will live together. IT raises a problem for the 
 placeholder: what should the ID value be? In JS it can be null. Should I use
 the server IDs as the ui IDs? Those are really just indexes. Should I use
-a sentinel value like `-1`?
+a sentinel value like ``-1``?
+
+Or should I use Maybe? That's the Elm model for Nullable. The other option
+is to remove the ID outside the Result object, into, e.g., the list. Now that's
+okay so long as we only use them as identifiers and not, say to order
+the items by. (unless the server is guaranteeing to allocate them in order).
+
 
 TODO:
 =====
@@ -106,7 +112,7 @@ TODO:
   its Field.saved function.
 
   Fixed by moving the logic to test if a field value has changed back inside
-  the Field module, where we now only set `saving=True`	if the value changed.
+  the Field module, where we now only set ``saving=True``	if the value changed.
   This has several nice-feeling side-effects on the coupling as the parent
   no longer needs to know the details of Field's Msg type. Or of the fields
   inside its model record. Win win!
@@ -118,7 +124,7 @@ TODO:
 - [x] Fix CSRF forgery warning from server
 
   Need to add token parameter to Result.update and pass down from dashboard.
-  Dashboard gets it from `initWithFlags` and stores in global scope.
+  Dashboard gets it from ``initWithFlags`` and stores in global scope.
 
 - [x] Upgrade to Elm 0.18 
 
@@ -135,28 +141,28 @@ TODO:
 
   - [x] A type to talk about the stuff that comes back from the server in
         response to a successful post message. This turns out to be Json
-        encoding of `ResltObject`, and gets decoded by one of the parameters
+        encoding of ``ResltObject``, and gets decoded by one of the parameters
         to Post. So we don't need a new type for it.
 
-      - [x] A Json decoder for whatever comes back from the `API: postResponseDecoder`
+      - [x] A Json decoder for whatever comes back from the ``API: postResponseDecoder``
 
   - [x] A way to turn a Request object into Json string to serve as the
-        body (payload) of the post request:  `resultBody`
+        body (payload) of the post request:  ``resultBody``
 
-  - [x] New case in the `Msg` for handling the result of the POST.
-        The Jason payload should be decoded into a `ResultObject`.
-        Or the Post might fail with an http error: `PostResponse`
+  - [x] New case in the ``Msg`` for handling the result of the POST.
+        The Jason payload should be decoded into a ``ResultObject``.
+        Or the Post might fail with an http error: ``PostResponse``
 
-  - [x] New handler in update for `PostResponse`: The handler case for this
+  - [x] New handler in update for ``PostResponse``: The handler case for this
         will switch on success or failure and act accordingly.
 
-- [x] Change the logic of `updateField`. At the moment `postResult` refers to
-  the bound `model` from update. (I just refactored that a bit so it gets
-  passed in in `updateField`, but its the same problem, its the model before
+- [x] Change the logic of ``updateField``. At the moment ``postResult`` refers to
+  the bound ``model`` from update. (I just refactored that a bit so it gets
+  passed in in ``updateField``, but its the same problem, its the model before
   the change that we're sending off. We need instead to send the post-change
-  model off. So we need to separate the bit of `updateField` that updates the
-  field and gets back the `maybeFieldMsg` from the bit that maps `postResult`
-  over it to create the `Cmd`.
+  model off. So we need to separate the bit of ``updateField`` that updates the
+  field and gets back the ``maybeFieldMsg`` from the bit that maps ``postResult``
+  over it to create the ``Cmd``.
 
   Something like::
 
@@ -173,7 +179,7 @@ TODO:
   incrementing. Turned out to be because we were using POST. The proper thing
   to do to update an existing object is PUT to its endpoint.
   
-- [x] Refactor and pull all the `ResultObject` stuff out into its own module.
+- [x] Refactor and pull all the ``ResultObject`` stuff out into its own module.
 
 
 - [ ] have a placeholder for new Results. And use POST to create a new object 
@@ -185,13 +191,13 @@ TODO:
   Elm's shadow DOM does.
 
 - [ ] Adding the class attributes to do the formatting above broke the default
-  classes because now there are 2 sets of `Attribute Msg` being combined
-  naively with concatenation, but each contain `className` specifiers that
+  classes because now there are 2 sets of ``Attribute Msg`` being combined
+  naively with concatenation, but each contain ``className`` specifiers that
   aren't being combined. Question with Elm mail list.
 
 - [ ] At present I call the Saved updater on all fields of a Result when the
   (Fake) server confirms it has saved the value successfully. This _might_ be
-  necessary ?? But I think we ought really to only be doing the `Field.Msg.Saved`
+  necessary ?? But I think we ought really to only be doing the ``Field.Msg.Saved``
   update on the field from which the save Cmd originated.
 
 - [ ] Looks like it might be possible (not sure if desirable) to separate the
