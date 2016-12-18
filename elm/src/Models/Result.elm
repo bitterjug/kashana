@@ -13,6 +13,12 @@ import Task
 import Time
 
 
+type alias Flags =
+    { logframeId : Int
+    , csrfToken : String
+    }
+
+
 type alias Model =
     { id : Int
     , logframeId : Int
@@ -54,8 +60,8 @@ type Msg
     | PostResponse Field.Msg (Result Http.Error ResultObject.Model)
 
 
-update : String -> Msg -> Model -> ( Model, Cmd Msg )
-update csrfToken msg model =
+update : Flags -> Msg -> Model -> ( Model, Cmd Msg )
+update flags msg model =
     let
         postResult : Model -> Field.Msg -> Cmd Msg
         postResult model_ msgBack =
@@ -68,11 +74,11 @@ update csrfToken msg model =
 
                 url =
                     "/api/logframes/"
-                        ++ (Basics.toString model_.logframeId)
+                        ++ (Basics.toString flags.logframeId)
                         ++ "/results/"
                         ++ toString model_.id
             in
-                Api.put csrfToken url resultBody ResultObject.decode
+                Api.put flags.csrfToken url resultBody ResultObject.decode
                     |> Http.send (PostResponse msgBack)
 
         saveResult : Field.Msg -> Cmd Msg

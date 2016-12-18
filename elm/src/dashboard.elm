@@ -13,8 +13,7 @@ type alias ID =
 type alias Model =
     -- The dashboard model comprises a list of results
     { results : List ( ID, Result.Model )
-    , nextId : ID
-    , csrfToken : String
+    , flags : Result.Flags
     }
 
 
@@ -26,6 +25,7 @@ type Msg
 type alias AptivateData =
     { results : List ResultObject.Model
     , csrf_token : String
+    , logframe : { id : Int }
     }
 
 
@@ -34,8 +34,10 @@ initWithFlags data =
     { results =
         List.indexedMap (,) <|
             List.map Result.initModel data.results
-    , nextId = List.length data.results
-    , csrfToken = data.csrf_token
+    , flags =
+        { csrfToken = data.csrf_token
+        , logframeId = data.logframe.id
+        }
     }
         ! []
 
@@ -52,7 +54,7 @@ update msg model =
                     if id_ == id then
                         let
                             ( result_, cmd ) =
-                                Result.update model.csrfToken rmsg result
+                                Result.update model.flags rmsg result
                         in
                             ( ( id_, result_ ), cmd )
                     else
