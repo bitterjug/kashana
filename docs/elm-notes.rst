@@ -71,13 +71,53 @@ I've created two schemes of IDs for results. There are the internal IDs
 allocated by the server and the ones used by the UI to identify which one to
 edit.  I wonder how these will live together. IT raises a problem for the 
 placeholder: what should the ID value be? In JS it can be null. Should I use
-the server IDs as the ui IDs? Those are really just indexes. Should I use
+the server IDs as the UI IDs? Those are really just indexes. Should I use
 a sentinel value like ``-1``?
 
-Or should I use Maybe? That's the Elm model for Nullable. The other option
+Or should I use Maybe? That's the Elm model for 'Nullable'. The other option
 is to remove the ID outside the Result object, into, e.g., the list. Now that's
 okay so long as we only use them as identifiers and not, say to order
 the items by. (unless the server is guaranteeing to allocate them in order).
+
+  - At the moment the local list of results keep its own 'id' values with
+    ``nextId``. And these are external to ``Result.Model``. And the server
+    allocates internal ``id`` values when you save; these get stored in the
+    ``ResultObject.Model`` and are stored in ``Result.Model``, but not used.
+
+
+  - Its tempting to think that the IDs in the list are not needed because 
+    lists are implicitly indexed. But because we are asynchronous, it's 
+    at least theoretically possible for  the list order to change before
+    a server response comes back and indexes might point to the wrong place.
+
+So instead of pretending ``Result.id`` doesn't exist, we should probably use
+those in place of the cumbersome ones in the list. The problem with this is
+that it doesn't make it easy for us to have no id in the unsaved placeholder.
+Should I model "placeholderness" explicitly with either a maybe or a
+constructor::
+
+  type alias ResultFields = 
+    { name : Field.Model, 
+      description : Field.Model
+      ...
+    }
+
+  type Model 
+      = Input ResultFields
+      | Result Int ResultFields
+
+
+Or::
+
+
+    -- Result:
+    type Model = ( ID, ResltFields)
+
+    -- dashboard :
+    type aslias Model = 
+      { results : list Result.Model
+      , input : Result.ResultFields
+      }
 
 
 TODO:
@@ -138,7 +178,7 @@ TODO:
 
   So, we need:
 
-  - [x] The url for the post to results: url
+  - [x] The URL for the post to results: URL
 
   - [x] A type to talk about the stuff that comes back from the server in
         response to a successful post message. This turns out to be Json
@@ -184,7 +224,12 @@ TODO:
 
 
 - [ ] have a placeholder for new Results. And use POST to create a new object 
-  when we are sending the placeholder's contents.
+  when we are sending the contents of the placeholder.
+
+  - [ ] On the basis that we don't even know the URL of the endpoint to use to
+    save a Result until we know which logframe we're using, I need to switch
+    back to using the logframe id from ``Aptivate.data.logframe.id``.
+
 
 - [ ] The Success class on fields should stay for 2 seconds and then fade.
   Got the timer to remove the tag but it looks a bit sudden, maybe the 
