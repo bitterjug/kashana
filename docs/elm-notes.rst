@@ -43,7 +43,8 @@ Here's the problem broken down:
 - Server wakes up (fg server process).
 - First response from server, app updates the field to normal styling -- no 
   crosshatching.
-Oops! We lost integrity of the updating status
+
+    Oops! We lost integrity of the updating status
 
 - Second server response arrives. Okay, we update the field contents but there
   was no indicator that we were still awaiting this response.
@@ -119,21 +120,21 @@ TODO:
 
 - [x] The top level wiring applies all changes to Results to all elements of
   the results list. That needs to be fixed to treat individual Results
-  separately, 
+  separately,
 
 - [x] Fix CSRF forgery warning from server
 
   Need to add token parameter to Result.update and pass down from dashboard.
   Dashboard gets it from ``initWithFlags`` and stores in global scope.
 
-- [x] Upgrade to Elm 0.18 
+- [x] Upgrade to Elm 0.18
 
 - [x] Use Http.jsonBody in the post request.
 
 - [x] Make a real POST request to the server when we update a field.
    The http request will use Http.post::
 
-   post : Decoder value -> String -> Body -> Task Error value
+       post : Decoder value -> String -> Body -> Task Error value
 
   So, we need:
 
