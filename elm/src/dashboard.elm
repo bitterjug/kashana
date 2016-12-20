@@ -12,7 +12,7 @@ type alias ID =
 
 type alias Model =
     -- The dashboard model comprises a list of results
-    { results : List ( ID, Result.Model )
+    { results : List Result.Model
     , flags : Result.Flags
     }
 
@@ -32,8 +32,7 @@ type alias AptivateData =
 initWithFlags : AptivateData -> ( Model, Cmd Msg )
 initWithFlags data =
     { results =
-        List.indexedMap (,) <|
-            List.map Result.initModel data.results
+        List.map Result.initModel data.results
     , flags =
         { csrfToken = data.csrf_token
         , logframeId = data.logframe.id
@@ -50,15 +49,11 @@ update msg model =
 
         UpdateResult id rmsg ->
             let
-                updateResult ( id_, result ) =
-                    if id_ == id then
-                        let
-                            ( result_, cmd ) =
-                                Result.update model.flags rmsg result
-                        in
-                            ( ( id_, result_ ), cmd )
+                updateResult resultModel =
+                    if resultModel |> Result.hasId id then
+                        Result.update model.flags rmsg resultModel
                     else
-                        ( ( id_, result ), Cmd.none )
+                        ( resultModel, Cmd.none )
 
                 ( results_, cmds ) =
                     List.unzip (List.map updateResult model.results)
@@ -73,13 +68,13 @@ subscriptions model =
     Sub.none
 
 
-renderResults : List ( ID, Result.Model ) -> Html Msg
+renderResults : List Result.Model -> Html Msg
 renderResults results =
     let
-        renderResult : ( ID, Result.Model ) -> Html Msg
-        renderResult ( n, r ) =
-            Result.render r
-                |> Html.map (UpdateResult n)
+        renderResult : Result.Model -> Html Msg
+        renderResult ( id, r ) =
+            Result.render ( id, r )
+                |> Html.map (UpdateResult id)
     in
         div [] <|
             List.map (renderResult) results

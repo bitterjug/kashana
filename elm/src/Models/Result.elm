@@ -13,6 +13,10 @@ import Task
 import Time
 
 
+type alias ID =
+    Int
+
+
 type alias Flags =
     { logframeId : Int
     , csrfToken : String
@@ -20,36 +24,45 @@ type alias Flags =
 
 
 type alias Model =
-    { id : Int
-    , logframeId : Int
+    ( ID, ResultFields )
+
+
+type alias ResultFields =
+    { logframeId : Int
     , name : Field.Model
     , description : Field.Model
     , order : Int
     }
 
 
+hasId : ID -> Model -> Bool
+hasId id ( modelId, _ ) =
+    modelId == id
+
+
 initModel : ResultObject.Model -> Model
 initModel result =
-    { id = result.id
-    , logframeId = result.log_frame
-    , name = Field.initModel "Name" result.name
-    , description = Field.initModel "Description" result.description
-    , order = result.order
-    }
+    ( result.id
+    , { logframeId = result.log_frame
+      , name = Field.initModel "Name" result.name
+      , description = Field.initModel "Description" result.description
+      , order = result.order
+      }
+    )
 
 
 modelToResultObject : Model -> ResultObject.Model
-modelToResultObject model =
+modelToResultObject ( id, result ) =
     ResultObject.Model
-        model.id
-        (Field.value model.name)
-        (Field.value model.description)
-        model.order
+        id
+        (Field.value result.name)
+        (Field.value result.description)
+        result.order
         0
         -- level
         0
         -- contribution_weighting
-        model.logframeId
+        result.logframeId
 
 
 type Msg
@@ -61,7 +74,7 @@ type Msg
 
 
 update : Flags -> Msg -> Model -> ( Model, Cmd Msg )
-update flags msg model =
+update flags msg ( id, result ) =
     let
         postResult : Model -> Field.Msg -> Cmd Msg
         postResult model_ msgBack =
@@ -76,7 +89,7 @@ update flags msg model =
                     "/api/logframes/"
                         ++ (Basics.toString flags.logframeId)
                         ++ "/results/"
-                        ++ toString model_.id
+                        ++ toString id
             in
                 Api.put flags.csrfToken url resultBody ResultObject.decode
                     |> Http.send (PostResponse msgBack)
@@ -88,53 +101,55 @@ update flags msg model =
     in
         case msg of
             NoOp ->
-                model ! []
+                ( id, result ) ! []
 
             UpdateName fieldMsg ->
                 let
                     ( name_, maybeFieldMsg ) =
-                        Field.update_ fieldMsg model.name
+                        Field.update_ fieldMsg result.name
 
-                    model_ =
-                        { model | name = name_ }
+                    result_ =
+                        { result | name = name_ }
 
                     cmd =
                         maybeFieldMsg
-                            |> Maybe.map (postResult model_)
+                            |> Maybe.map (postResult ( id, result_ ))
                             >> Maybe.withDefault Cmd.none
                 in
-                    ( model_, cmd )
+                    ( ( id, result_ ), cmd )
 
             UpdateDescription fieldMsg ->
                 let
                     ( description_, maybeFieldMsg ) =
-                        Field.update_ fieldMsg model.description
+                        Field.update_ fieldMsg result.description
 
-                    model_ =
-                        { model | description = description_ }
+                    result_ =
+                        { result | description = description_ }
 
                     cmd =
                         maybeFieldMsg
-                            |> Maybe.map (postResult model_)
+                            |> Maybe.map (postResult ( id, result_ ))
                             >> Maybe.withDefault Cmd.none
                 in
-                    ( model_, cmd )
+                    ( ( id, result_ ), cmd )
 
             PostResponse fieldMsg (Ok resultObject) ->
                 let
                     _ =
-                        Debug.log "saved" model
+                        Debug.log "saved" result
 
                     ( name_, nameCmd ) =
-                        Field.update fieldMsg model.name
+                        Field.update fieldMsg result.name
 
                     ( description_, descCmd ) =
-                        Field.update fieldMsg model.description
+                        Field.update fieldMsg result.description
                 in
-                    { model
+                    ( id
+                    , { result
                         | name = name_
                         , description = description_
-                    }
+                      }
+                    )
                         ! [ Cmd.map UpdateName nameCmd
                           , Cmd.map UpdateDescription descCmd
                           ]
@@ -147,7 +162,7 @@ update flags msg model =
                     _ =
                         Debug.log "Error:" httpError
                 in
-                    model ! []
+                    ( id, result ) ! []
 
             Saved fieldMsg ->
                 -- Ignores the resultObject for the time being, we'll need it
@@ -155,18 +170,20 @@ update flags msg model =
                 -- TODO: see note in docs about using a dict as the underlying model
                 let
                     _ =
-                        Debug.log "saved" model
+                        Debug.log "saved" result
 
                     ( name_, nameCmd ) =
-                        Field.update fieldMsg model.name
+                        Field.update fieldMsg result.name
 
                     ( description_, descCmd ) =
-                        Field.update fieldMsg model.description
+                        Field.update fieldMsg result.description
                 in
-                    { model
+                    ( id
+                    , { result
                         | name = name_
                         , description = description_
-                    }
+                      }
+                    )
                         ! [ Cmd.map UpdateName nameCmd
                           , Cmd.map UpdateDescription descCmd
                           ]
@@ -190,7 +207,7 @@ renderDescription atts value =
 
 
 render : Model -> Html Msg
-render result =
+render ( id, result ) =
     div [ class "overview-main" ]
         [ div [ class "result-tree" ]
             [ div [ class "result-overview level-1" ]

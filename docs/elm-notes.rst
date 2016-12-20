@@ -120,8 +120,9 @@ Or::
       }
 
 
+
 TODO:
-=====
+------
 
 - [x] The field's initial value doesn't seem to be getting initialized properly
   from the model.  Although it shows the word Goal when you load the page, that
@@ -226,9 +227,16 @@ TODO:
 - [ ] have a placeholder for new Results. And use POST to create a new object 
   when we are sending the contents of the placeholder.
 
-  - [ ] On the basis that we don't even know the URL of the endpoint to use to
-    save a Result until we know which logframe we're using, I need to switch
-    back to using the logframe id from ``Aptivate.data.logframe.id``.
+  1. [X] 2016-12-20 On the basis that we don't even know the URL of the
+     endpoint to use to save a Result until we know which logframe we're using,
+     I need to switch back to using the logframe id from
+     ``Aptivate.data.logframe.id``.
+
+  2. [ ]  Add placeholder or 'input' element to the model
+
+  3. [ ] Render the placeholder
+
+  4. [ ] Send post on enter in placeholder
 
 
 - [ ] The Success class on fields should stay for 2 seconds and then fade.
@@ -243,8 +251,8 @@ TODO:
 
 - [ ] At present I call the Saved updater on all fields of a Result when the
   (Fake) server confirms it has saved the value successfully. This _might_ be
-  necessary ?? But I think we ought really to only be doing the ``Field.Msg.Saved``
-  update on the field from which the save Cmd originated.
+  necessary ?? But I think we ought really to only be doing the
+  ``Field.Msg.Saved`` update on the field from which the save Cmd originated.
 
 - [ ] Looks like it might be possible (not sure if desirable) to separate the
   logic for saving the data in a field from the rest of field's behaviour. 
