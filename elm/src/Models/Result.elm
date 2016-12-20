@@ -40,15 +40,27 @@ hasId id ( modelId, _ ) =
     modelId == id
 
 
+fromResultObject : ResultObject.Model -> ResultFields
+fromResultObject result =
+    { logframeId = result.log_frame
+    , name = Field.initModel "Name" result.name
+    , description = Field.initModel "Description" result.description
+    , order = result.order
+    }
+
+
+fromScratch : Flags -> ResultFields
+fromScratch flags =
+    { logframeId = flags.logframeId
+    , name = Field.initModel "Name" ""
+    , description = Field.initModel "Description" ""
+    , order = 0
+    }
+
+
 initModel : ResultObject.Model -> Model
 initModel result =
-    ( result.id
-    , { logframeId = result.log_frame
-      , name = Field.initModel "Name" result.name
-      , description = Field.initModel "Description" result.description
-      , order = result.order
-      }
-    )
+    ( result.id, fromResultObject result )
 
 
 modelToResultObject : Model -> ResultObject.Model

@@ -238,6 +238,15 @@ TODO:
 
   4. [ ] Send post on enter in placeholder
 
+  ``Result.update`` is defined for ``Result.Model`` which is a ``( ID,
+  ResultFields)`` pair. Now I need to define update on the placeholder, which
+  does not include an ID. Turns out the id value is only really used in
+  ``update`` to construct the URL we PUT the update Result to. And, for the
+  POST we're going to do to create the new Result from the placeholder, we
+  don't even need the id. Which kinda makes sense. So do we need to decide what
+  kind of update is appropriate outside the update message, and pass it (the
+  url and HTTP request type) in as a parameter?
+
 
 - [ ] The Success class on fields should stay for 2 seconds and then fade.
   Got the timer to remove the tag but it looks a bit sudden, maybe the 

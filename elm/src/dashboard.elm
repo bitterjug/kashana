@@ -11,15 +11,20 @@ type alias ID =
 
 
 type alias Model =
-    -- The dashboard model comprises a list of results
-    { results : List Result.Model
-    , flags : Result.Flags
+    -- The dashboard model comprises
+    -- configuration values loaded from the page
+    -- a list of results
+    -- and an empty result placeholder for input
+    { flags : Result.Flags
+    , results : List Result.Model
+    , placeholder : Result.ResultFields
     }
 
 
 type Msg
     = NoOp
     | UpdateResult ID Result.Msg
+    | UpdatePlaceholder Result.Msg
 
 
 type alias AptivateData =
@@ -31,14 +36,17 @@ type alias AptivateData =
 
 initWithFlags : AptivateData -> ( Model, Cmd Msg )
 initWithFlags data =
-    { results =
-        List.map Result.initModel data.results
-    , flags =
-        { csrfToken = data.csrf_token
-        , logframeId = data.logframe.id
+    let
+        flags =
+            { csrfToken = data.csrf_token
+            , logframeId = data.logframe.id
+            }
+    in
+        { flags = flags
+        , results = List.map Result.initModel data.results
+        , placeholder = Result.fromScratch flags
         }
-    }
-        ! []
+            ! []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -60,6 +68,15 @@ update msg model =
             in
                 ( { model | results = results_ }
                 , Cmd.map (UpdateResult id) (Cmd.batch cmds)
+                )
+
+        UpdatePlaceholder rmsg ->
+            let
+                ( placeholder_, cmd ) =
+                    Result.update model.flags rmsg model.placeholder
+            in
+                ( { model | placeholder = placeholder_ }
+                , Cmd.map UpdatePlaceholder cmd
                 )
 
 
