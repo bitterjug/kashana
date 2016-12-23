@@ -6,10 +6,6 @@ import Models.Result as Result
 import Models.ResultObject as ResultObject
 
 
-type alias ID =
-    Int
-
-
 type alias Model =
     -- The dashboard model comprises
     -- configuration values loaded from the page
@@ -17,13 +13,13 @@ type alias Model =
     -- and an empty result placeholder for input
     { flags : Result.Flags
     , results : List Result.Model
-    , placeholder : Result.ResultFields
+    , placeholder : Result.Model
     }
 
 
 type Msg
     = NoOp
-    | UpdateResult ID Result.Msg
+    | UpdateResult (Maybe Int) Result.Msg
     | UpdatePlaceholder Result.Msg
 
 
@@ -58,7 +54,7 @@ update msg model =
         UpdateResult id rmsg ->
             let
                 updateResult resultModel =
-                    if resultModel |> Result.hasId id then
+                    if resultModel.id == id then
                         Result.update model.flags rmsg resultModel
                     else
                         ( resultModel, Cmd.none )
@@ -89,9 +85,9 @@ renderResults : List Result.Model -> Html Msg
 renderResults results =
     let
         renderResult : Result.Model -> Html Msg
-        renderResult ( id, r ) =
-            Result.render ( id, r )
-                |> Html.map (UpdateResult id)
+        renderResult result =
+            Result.render result
+                |> Html.map (UpdateResult result.id)
     in
         div [] <|
             List.map (renderResult) results

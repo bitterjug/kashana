@@ -13,10 +13,6 @@ import Task
 import Time
 
 
-type alias ID =
-    Int
-
-
 type alias Flags =
     { logframeId : Int
     , csrfToken : String
@@ -24,34 +20,28 @@ type alias Flags =
 
 
 type alias Model =
-    ( ID, ResultFields )
-
-
-type alias ResultFields =
-    { logframeId : Int
+    { id : Maybe Int
+    , logframeId : Int
     , name : Field.Model
     , description : Field.Model
     , order : Int
     }
 
 
-hasId : ID -> Model -> Bool
-hasId id ( modelId, _ ) =
-    modelId == id
-
-
-fromResultObject : ResultObject.Model -> ResultFields
+fromResultObject : ResultObject.Model -> Model
 fromResultObject result =
-    { logframeId = result.log_frame
+    { id = result.id
+    , logframeId = result.log_frame
     , name = Field.initModel "Name" result.name
     , description = Field.initModel "Description" result.description
     , order = result.order
     }
 
 
-fromScratch : Flags -> ResultFields
+fromScratch : Flags -> Model
 fromScratch flags =
-    { logframeId = flags.logframeId
+    { id = Nothing
+    , logframeId = flags.logframeId
     , name = Field.initModel "Name" ""
     , description = Field.initModel "Description" ""
     , order = 0
@@ -59,14 +49,14 @@ fromScratch flags =
 
 
 initModel : ResultObject.Model -> Model
-initModel result =
-    ( result.id, fromResultObject result )
+initModel =
+    fromResultObject
 
 
 modelToResultObject : Model -> ResultObject.Model
-modelToResultObject ( id, result ) =
+modelToResultObject result =
     ResultObject.Model
-        id
+        result.id
         (Field.value result.name)
         (Field.value result.description)
         result.order
@@ -85,115 +75,125 @@ type Msg
     | PostResponse Field.Msg (Result Http.Error ResultObject.Model)
 
 
-update : Flags -> Msg -> Model -> ( Model, Cmd Msg )
-update flags msg ( id, result ) =
+postResult : Flags -> Model -> Field.Msg -> Cmd Msg
+postResult flags model msgBack =
     let
-        postResult : Model -> Field.Msg -> Cmd Msg
-        postResult model_ msgBack =
-            let
-                resultBody =
-                    model_
-                        |> modelToResultObject
-                        |> ResultObject.encode
-                        |> Http.jsonBody
+        resultBody =
+            model
+                |> modelToResultObject
+                |> ResultObject.encode
+                |> Http.jsonBody
 
-                url =
-                    "/api/logframes/"
-                        ++ (Basics.toString flags.logframeId)
-                        ++ "/results/"
-                        ++ toString id
-            in
-                Api.put flags.csrfToken url resultBody ResultObject.decode
-                    |> Http.send (PostResponse msgBack)
+        id_ =
+            model.id
+                |> Maybe.map toString
+                |> Maybe.withDefault ""
+
+        logframeId_ =
+            flags.logframeId
+                |> toString
+
+        url =
+            "/api/logframes/" ++ logframeId_ ++ "/results/" ++ id_
+
+        apiRequest =
+            if model.id == Nothing then
+                Api.post
+            else
+                Api.put
     in
-        case msg of
-            NoOp ->
-                ( id, result ) ! []
+        apiRequest flags.csrfToken url resultBody ResultObject.decode
+            |> Http.send (PostResponse msgBack)
 
-            UpdateName fieldMsg ->
-                let
-                    ( name_, maybeFieldMsg ) =
-                        Field.update_ fieldMsg result.name
 
-                    result_ =
-                        { result | name = name_ }
+update : Flags -> Msg -> Model -> ( Model, Cmd Msg )
+update flags msg result =
+    case msg of
+        NoOp ->
+            result ! []
 
-                    cmd =
-                        maybeFieldMsg
-                            |> Maybe.map (postResult ( id, result_ ))
-                            >> Maybe.withDefault Cmd.none
-                in
-                    ( ( id, result_ ), cmd )
+        UpdateName fieldMsg ->
+            let
+                ( name_, maybeFieldMsg ) =
+                    Field.update_ fieldMsg result.name
 
-            UpdateDescription fieldMsg ->
-                let
-                    ( description_, maybeFieldMsg ) =
-                        Field.update_ fieldMsg result.description
+                result_ =
+                    { result | name = name_ }
 
-                    result_ =
-                        { result | description = description_ }
+                cmd =
+                    maybeFieldMsg
+                        |> Maybe.map (postResult flags result_)
+                        >> Maybe.withDefault Cmd.none
+            in
+                ( result_, cmd )
 
-                    cmd =
-                        maybeFieldMsg
-                            |> Maybe.map (postResult ( id, result_ ))
-                            >> Maybe.withDefault Cmd.none
-                in
-                    ( ( id, result_ ), cmd )
+        UpdateDescription fieldMsg ->
+            let
+                ( description_, maybeFieldMsg ) =
+                    Field.update_ fieldMsg result.description
 
-            PostResponse fieldMsg (Ok resultObject) ->
-                let
-                    _ =
-                        Debug.log "saved" result
+                result_ =
+                    { result | description = description_ }
 
-                    ( name_, nameCmd ) =
-                        Field.update fieldMsg result.name
+                cmd =
+                    maybeFieldMsg
+                        |> Maybe.map (postResult flags result_)
+                        >> Maybe.withDefault Cmd.none
+            in
+                ( result_, cmd )
 
-                    ( description_, descCmd ) =
-                        Field.update fieldMsg result.description
-                in
-                    ( id
-                    , { result
-                        | name = name_
-                        , description = description_
-                      }
-                    )
-                        ! [ Cmd.map UpdateName nameCmd
-                          , Cmd.map UpdateDescription descCmd
-                          ]
+        PostResponse fieldMsg (Ok resultObject) ->
+            let
+                _ =
+                    Debug.log "saved" result
 
-            PostResponse _ (Err httpError) ->
-                -- For the time being, just log the error
-                -- TODO: handle this properly by setting the error flag
-                -- on all fields awaiting confirmation
-                let
-                    _ =
-                        Debug.log "Error:" httpError
-                in
-                    ( id, result ) ! []
+                ( name_, nameCmd ) =
+                    Field.update fieldMsg result.name
 
-            Saved fieldMsg ->
-                -- Ignores the resultObject for the time being, we'll need it
-                -- when we're saving the placeholder in future
-                -- TODO: see note in docs about using a dict as the underlying model
-                let
-                    _ =
-                        Debug.log "saved" result
+                ( description_, descCmd ) =
+                    Field.update fieldMsg result.description
+            in
+                ({ result
+                    | name = name_
+                    , description = description_
+                 }
+                )
+                    ! [ Cmd.map UpdateName nameCmd
+                      , Cmd.map UpdateDescription descCmd
+                      ]
 
-                    ( name_, nameCmd ) =
-                        Field.update fieldMsg result.name
+        PostResponse _ (Err httpError) ->
+            -- For the time being, just log the error
+            -- TODO: handle this properly by setting the error flag
+            -- on all fields awaiting confirmation
+            let
+                _ =
+                    Debug.log "Error:" httpError
+            in
+                result ! []
 
-                    ( description_, descCmd ) =
-                        Field.update fieldMsg result.description
-                in
-                    ( id
-                    , { result
-                        | name = name_
-                        , description = description_
-                      }
-                    )
-                        ! [ Cmd.map UpdateName nameCmd
-                          , Cmd.map UpdateDescription descCmd
-                          ]
+        Saved fieldMsg ->
+            -- Ignores the resultObject for the time being, we'll need it
+            -- when we're saving the placeholder in future
+            -- TODO: see note in docs about using a dict as the underlying model
+            let
+                _ =
+                    Debug.log "saved" result
+
+                ( name_, nameCmd ) =
+                    Field.update fieldMsg result.name
+
+                ( description_, descCmd ) =
+                    Field.update fieldMsg result.description
+            in
+                ({ result
+                    | name = name_
+                    , description = description_
+                 }
+                )
+                    ! [ Cmd.map UpdateName nameCmd
+                      , Cmd.map UpdateDescription descCmd
+                      ]
 
 
 renderName : Field.Renderer
@@ -214,7 +214,7 @@ renderDescription atts value =
 
 
 render : Model -> Html Msg
-render ( id, result ) =
+render result =
     div [ class "overview-main" ]
         [ div [ class "result-tree" ]
             [ div [ class "result-overview level-1" ]

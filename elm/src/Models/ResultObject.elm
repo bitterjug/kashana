@@ -2,11 +2,12 @@ module Models.ResultObject exposing (..)
 
 import Json.Encode as Je
 import Json.Decode as Jd
+import Maybe.Extra exposing (maybeToList)
 
 
 type alias Model =
     -- Type of the Aptivate.results objects used to initialize the app
-    { id : Int
+    { id : Maybe Int
     , name : String
     , description : String
     , order :
@@ -27,20 +28,24 @@ type alias Model =
 
 encode : Model -> Je.Value
 encode result =
-    Je.object
-        [ ( "id", Je.int result.id )
-        , ( "name", Je.string result.name )
-        , ( "description", Je.string result.description )
-          -- skip a bit, brother
-        , ( "log_frame", Je.int result.log_frame )
-        , ( "order", Je.int result.order )
-        ]
+    Je.object <|
+        (result.id
+            |> Maybe.map Je.int
+            |> Maybe.map ((,) "id")
+            |> maybeToList
+        )
+            ++ [ ( "name", Je.string result.name )
+               , ( "description", Je.string result.description )
+                 -- skip a bit, brother
+               , ( "log_frame", Je.int result.log_frame )
+               , ( "order", Je.int result.order )
+               ]
 
 
 decode : Jd.Decoder Model
 decode =
     Jd.map7 Model
-        (Jd.field "id" Jd.int)
+        (Jd.field "id" (Jd.nullable Jd.int))
         (Jd.field "name" Jd.string)
         (Jd.field "description" Jd.string)
         (Jd.field "order" Jd.int)

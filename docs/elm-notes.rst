@@ -120,6 +120,29 @@ Or::
       }
 
 
+Maybe I'm doing this wrong: 
+
+  - The two kinds of http request we're going to use are
+
+    1. PUT to ``.../results/<id>``
+
+    2. POST to ``.../results/``
+
+So we could select on a single value of ``Maybe int`` as the ID,
+instead of encoding the placeholder completely separately. So ``Result.Model``
+would look like::
+
+      type Model = 
+          { id: Maybe ID,
+          , name: ...
+          }
+
+
+This would mean we can defer responsibility for saving the Result to the Result
+module.  Bu there is still something we need to do when we successfully save a
+placeholder and get the confirmation back from the server: we need to move the
+placeholder to the list. And that is going to be done in the dashboard module
+because that's were those constructs are modelled. How are we going to do that?
 
 TODO:
 ------
