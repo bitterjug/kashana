@@ -105,11 +105,6 @@ update flags msg ( id, result ) =
             in
                 Api.put flags.csrfToken url resultBody ResultObject.decode
                     |> Http.send (PostResponse msgBack)
-
-        saveResult : Field.Msg -> Cmd Msg
-        saveResult msgBack =
-            Process.sleep Time.second
-                |> Task.perform (always (Saved msgBack))
     in
         case msg of
             NoOp ->
