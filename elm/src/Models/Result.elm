@@ -86,7 +86,7 @@ postResult flags model msgBack =
 
         id_ =
             model.id
-                |> Maybe.map toString
+                |> Maybe.map (((++) "/") << toString)
                 |> Maybe.withDefault ""
 
         logframeId_ =
@@ -94,7 +94,7 @@ postResult flags model msgBack =
                 |> toString
 
         url =
-            "/api/logframes/" ++ logframeId_ ++ "/results/" ++ id_
+            "/api/logframes/" ++ logframeId_ ++ "/results" ++ id_
 
         apiRequest =
             if model.id == Nothing then
