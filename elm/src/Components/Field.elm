@@ -96,7 +96,7 @@ view displayView model =
         display =
             displayView [ highlightStyle, onClick Focus ] <|
                 if model.value == "" then
-                    model.name
+                    "Click to add" ++ model.name
                 else
                     model.value
 

@@ -19,7 +19,7 @@ type alias Model =
 
 type Msg
     = NoOp
-    | UpdateResult (Maybe Int) Result.Msg
+    | UpdateResult Int Result.Msg
     | UpdatePlaceholder Result.Msg
 
 
@@ -54,7 +54,7 @@ update msg model =
         UpdateResult id rmsg ->
             let
                 updateResult resultModel =
-                    if resultModel.id == id then
+                    if resultModel.id == Just id then
                         Result.update model.flags rmsg resultModel
                     else
                         ( resultModel, Cmd.none )
@@ -86,8 +86,14 @@ renderResults results =
     let
         renderResult : Result.Model -> Html Msg
         renderResult result =
-            Result.render result
-                |> Html.map (UpdateResult result.id)
+            let
+                message =
+                    result.id
+                        |> Maybe.map UpdateResult
+                        |> Maybe.withDefault UpdatePlaceholder
+            in
+                Result.render result
+                    |> Html.map message
     in
         div [] <|
             List.map (renderResult) results
@@ -95,8 +101,12 @@ renderResults results =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ (renderResults model.results) ]
+    let
+        results =
+            model.results ++ [ model.placeholder ]
+    in
+        div []
+            [ (renderResults results) ]
 
 
 main =
