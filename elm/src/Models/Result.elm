@@ -86,7 +86,7 @@ postResult flags model msgBack =
 
         id_ =
             model.id
-                |> Maybe.map (((++) "/") << toString)
+                |> Maybe.map (toString >> ((++) "/"))
                 |> Maybe.withDefault ""
 
         logframeId_ =
